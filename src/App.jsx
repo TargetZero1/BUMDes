@@ -607,7 +607,7 @@ export default function App() {
         ))}
 
         {tab === 'importExport' && (!overviewOnly ? (
-          <ImportExportSection data={data} onImportReplace={replaceAllData} onReset={handleReset} computeRingkasan={computeRingkasan} />
+          <ImportExportSection data={data} onImportReplace={replaceAllData} onReset={handleReset} computeRingkasan={computeRingkasan} profile={profile} selectedUnitId={selectedUnitId} currentUnitLabel={currentUnitLabel} session={session} />
         ) : (
           <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-6 text-sm text-stone-600">
             Pilih satu unit di header untuk impor / ekspor data.
