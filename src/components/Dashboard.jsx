@@ -13,14 +13,14 @@ export default function Dashboard({ kasUmumTotals, kasPetelurTotals, grandTotals
         <p className="text-sm text-stone-500">Update otomatis dari semua transaksi</p>
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 p-5 text-amber-950">
-        <div>
+      <div className="mb-6 flex flex-col gap-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 p-4 text-amber-950 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+        <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wide opacity-70">Keuntungan Bersih -- Semua Unit</p>
-          <p className="text-3xl font-bold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          <p className="text-2xl font-bold sm:text-3xl" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
             {formatRupiah(grandTotals.bersih)}
           </p>
         </div>
-        <div className="max-w-md text-sm opacity-80">
+        <div className="text-sm opacity-80 sm:max-w-md">
           Gabungan Kas Umum + Kas RKU Petelur. Transfer dana antar unit otomatis kesaring, jadi angkanya gak dobel hitung.
         </div>
       </div>
@@ -31,7 +31,7 @@ export default function Dashboard({ kasUmumTotals, kasPetelurTotals, grandTotals
             <Wallet className="h-4 w-4 text-emerald-700" />
             <h3 className="font-semibold text-stone-700">Kas Umum BUMDes</h3>
           </div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <StatCard label="Pemasukan" value={kasUmumTotals.pemasukan} tone="positive" />
             <StatCard label="Pengeluaran" value={kasUmumTotals.pengeluaran} tone="negative" />
             <StatCard label="Bersih" value={kasUmumTotals.bersih} tone="highlight" />
@@ -42,7 +42,7 @@ export default function Dashboard({ kasUmumTotals, kasPetelurTotals, grandTotals
             <Egg className="h-4 w-4 text-emerald-700" />
             <h3 className="font-semibold text-stone-700">Kas RKU Unit Petelur</h3>
           </div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <StatCard label="Pemasukan" value={kasPetelurTotals.pemasukan} tone="positive" />
             <StatCard label="Pengeluaran" value={kasPetelurTotals.pengeluaran} tone="negative" />
             <StatCard label="Bersih" value={kasPetelurTotals.bersih} tone="highlight" />

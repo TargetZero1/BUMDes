@@ -110,27 +110,27 @@ export default function LedgerSection({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-6 rounded-2xl bg-gradient-to-r from-emerald-900 to-emerald-800 p-5 text-white">
-        <div>
+      <div className="flex flex-col gap-5 rounded-2xl bg-gradient-to-r from-emerald-900 to-emerald-800 p-4 text-white sm:flex-row sm:items-center sm:justify-between sm:p-5">
+        <div className="min-w-0">
           <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-emerald-200">Tutup Buku</p>
           <p className="text-lg font-bold" style={{ fontFamily: "'Lora', serif" }}>
             Keuntungan Bersih
           </p>
         </div>
-        <div className="flex gap-8">
-          <div>
+        <div className="grid grid-cols-3 gap-4 sm:flex sm:gap-8">
+          <div className="min-w-0">
             <p className="text-xs text-emerald-200">Pemasukan</p>
             <p className="font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               {formatRupiah(totalDebit)}
             </p>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-xs text-emerald-200">Pengeluaran</p>
             <p className="font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               {formatRupiah(totalKredit)}
             </p>
           </div>
-          <div className="border-l border-emerald-700 pl-6">
+          <div className="min-w-0 border-l border-emerald-700 pl-3 sm:pl-6">
             <p className="text-xs text-amber-300">Bersih</p>
             <p className="text-xl font-bold text-amber-300" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               {formatRupiah(bersih)}

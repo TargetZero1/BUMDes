@@ -9,12 +9,12 @@ export default function StatCard({ label, value, icon: Icon, tone = 'neutral', b
   };
 
   return (
-    <div className={`rounded-2xl border p-4 ${tones[tone]}`}>
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wide opacity-70">{label}</span>
+    <div className={`min-w-0 rounded-2xl border p-3 sm:p-4 ${tones[tone]}`}>
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <span className="text-[0.68rem] font-semibold uppercase tracking-wide opacity-70 sm:text-xs">{label}</span>
         {Icon && <Icon className="h-4 w-4 opacity-60" />}
       </div>
-      <div className={big ? 'text-2xl font-bold' : 'text-lg font-bold'} style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+      <div className={`${big ? 'text-lg sm:text-2xl' : 'text-base sm:text-lg'} break-words font-bold`} style={{ fontFamily: "'JetBrains Mono', monospace" }}>
         {formatRupiah(value)}
       </div>
     </div>
