@@ -314,7 +314,7 @@ function LedgerSection({
         </div>
       </div>
 
-      <div className="rounded-2xl bg-gradient-to-r from-emerald-900 to-emerald-800 text-white p-5 flex flex-wrap gap-6 items-center justify-between">
+      <div className="rounded-2xl bg-linear-to-r from-emerald-900 to-emerald-800 text-white p-5 flex flex-wrap gap-6 items-center justify-between">
         <div>
           <p className="text-xs uppercase tracking-wide text-emerald-200 font-semibold mb-1">Tutup Buku</p>
           <p style={{ fontFamily: "'Lora', serif" }} className="text-lg font-bold">Keuntungan Bersih</p>
@@ -418,7 +418,7 @@ function Dashboard({ kasUmumTotals, kasPetelurTotals, grandTotals, monthlyData, 
         <p className="text-sm text-stone-500">Update otomatis dari semua transaksi</p>
       </div>
 
-      <div className="rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-amber-950 p-5 mb-6 flex flex-wrap items-center justify-between gap-4">
+      <div className="rounded-2xl bg-linear-to-r from-amber-500 to-amber-600 text-amber-950 p-5 mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-wide font-semibold opacity-70">Keuntungan Bersih -- Semua Unit</p>
           <p style={{ fontFamily: "'JetBrains Mono', monospace" }} className="text-3xl font-bold">{formatRupiah(grandTotals.bersih)}</p>
@@ -755,7 +755,7 @@ export default function App() {
 
   if (!loaded || !data) {
     return (
-      <div className="min-h-[400px] flex items-center justify-center bg-stone-50">
+      <div className="min-h-100 flex items-center justify-center bg-stone-50">
         <div className="flex items-center gap-2 text-stone-400">
           <Loader2 className="w-5 h-5 animate-spin" />
           <span className="text-sm">Nyambungin ke database...</span>
@@ -768,7 +768,7 @@ export default function App() {
     <div className="min-h-screen bg-stone-50 text-stone-800" style={{ fontFamily: "'Inter', ui-sans-serif, system-ui" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=JetBrains+Mono:wght@500;600&family=Inter:wght@400;500;600;700&display=swap');`}</style>
 
-      <header className="bg-gradient-to-r from-emerald-950 to-emerald-800 text-white sticky top-0 z-40">
+      <header className="bg-linear-to-r from-emerald-950 to-emerald-800 text-white sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
           <EmblemBadge />
           <div>

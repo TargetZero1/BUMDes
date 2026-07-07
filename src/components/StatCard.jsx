@@ -14,7 +14,7 @@ export default function StatCard({ label, value, icon: Icon, tone = 'neutral', b
         <span className="text-[0.68rem] font-semibold uppercase tracking-wide opacity-70 sm:text-xs">{label}</span>
         {Icon && <Icon className="h-4 w-4 opacity-60" />}
       </div>
-      <div className={`${big ? 'text-lg sm:text-2xl' : 'text-base sm:text-lg'} break-words font-bold`} style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+      <div className={`${big ? 'text-lg sm:text-2xl' : 'text-base sm:text-lg'} wrap-break-word font-bold`} style={{ fontFamily: "'JetBrains Mono', monospace" }}>
         {formatRupiah(value)}
       </div>
     </div>

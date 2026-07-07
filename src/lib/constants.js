@@ -4,6 +4,14 @@ export const SUMBER_PETELUR = ['BUMDes', 'Lain-lain'];
 export const KATEGORI_PETELUR = ['ATK', 'Aset (Kandang, Tanah)', 'Aksesoris Kandang', 'Pakan', 'Obat-obatan', 'Lain-lain', 'Pihak Ketiga'];
 export const BARANG_LIST = ['Pakan Ayam (Konsentrat)', 'Vaksin ND', 'Obat-obatan Lain', 'Aksesoris Kandang', 'Lain-lain'];
 export const SATUAN_LIST = ['Kg', 'Sak', 'Botol', 'Pcs', 'Liter'];
+export const UNIT_SCOPE_ALL = 'all';
+export const ROLE_OPTIONS = ['super_admin', 'unit_admin', 'staff', 'viewer'];
+export const ROLE_LABELS = {
+  super_admin: 'Super Admin',
+  unit_admin: 'Admin Unit',
+  staff: 'Staf',
+  viewer: 'Viewer',
+};
 
 export const TABLE_MAP = {
   'kasUmum.debit': 'kas_umum_debit',

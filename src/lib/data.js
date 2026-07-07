@@ -14,6 +14,8 @@ export function rowToEntry(row) {
     sumber: row.sumber,
     kategori: row.kategori,
     jumlah: Number(row.jumlah) || 0,
+    unitId: row.unit_id ?? null,
+    createdBy: row.created_by ?? null,
   };
 }
 
@@ -26,5 +28,7 @@ export function rowToGudang(row) {
     uraian: row.uraian,
     masuk: Number(row.masuk) || 0,
     keluar: Number(row.keluar) || 0,
+    unitId: row.unit_id ?? null,
+    createdBy: row.created_by ?? null,
   };
 }

@@ -110,7 +110,7 @@ export default function LedgerSection({
         </div>
       </div>
 
-      <div className="flex flex-col gap-5 rounded-2xl bg-gradient-to-r from-emerald-900 to-emerald-800 p-4 text-white sm:flex-row sm:items-center sm:justify-between sm:p-5">
+      <div className="flex flex-col gap-5 rounded-2xl bg-linear-to-r from-emerald-900 to-emerald-800 p-4 text-white sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div className="min-w-0">
           <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-emerald-200">Tutup Buku</p>
           <p className="text-lg font-bold" style={{ fontFamily: "'Lora', serif" }}>

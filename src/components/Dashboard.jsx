@@ -13,7 +13,7 @@ export default function Dashboard({ kasUmumTotals, kasPetelurTotals, grandTotals
         <p className="text-sm text-stone-500">Update otomatis dari semua transaksi</p>
       </div>
 
-      <div className="mb-6 flex flex-col gap-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 p-4 text-amber-950 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+      <div className="mb-6 flex flex-col gap-4 rounded-2xl bg-linear-to-r from-amber-500 to-amber-600 p-4 text-amber-950 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wide opacity-70">Keuntungan Bersih -- Semua Unit</p>
           <p className="text-2xl font-bold sm:text-3xl" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
