@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Banknote, Egg, FileSpreadsheet, LayoutDashboard, RefreshCw, Wallet, Warehouse, Wifi, WifiOff } from 'lucide-react';
+import { Banknote, Egg, FileSpreadsheet, LayoutDashboard, Menu, RefreshCw, Wallet, Warehouse, Wifi, WifiOff, X } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import EmblemBadge from './components/EmblemBadge';
 import GudangSection from './components/GudangSection';
@@ -17,6 +17,7 @@ export default function App() {
   const [dbOk, setDbOk] = useState(true);
   const [notice, setNotice] = useState(null);
   const [tab, setTab] = useState('dashboard');
+  const [navOpen, setNavOpen] = useState(false);
 
   const fetchAll = useCallback(async () => {
     const [kud, kuk, kpd, kpk, gd] = await Promise.all([
@@ -131,6 +132,11 @@ export default function App() {
     { key: 'importExport', label: 'Impor / Ekspor', icon: FileSpreadsheet },
   ];
 
+  const handleTabChange = (key) => {
+    setTab(key);
+    setNavOpen(false);
+  };
+
   if (!loaded || !data) {
     return (
       <div className="flex min-h-100 items-center justify-center bg-stone-50">
@@ -147,8 +153,8 @@ export default function App() {
       <header className="sticky top-0 z-40 bg-linear-to-r from-emerald-950 to-emerald-800 text-white">
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-4">
           <EmblemBadge />
-          <div>
-            <h1 className="text-xl font-bold leading-tight md:text-2xl" style={{ fontFamily: "'Lora', serif" }}>
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-xl font-bold leading-tight md:text-2xl" style={{ fontFamily: "'Lora', serif" }}>
               Buku Kas BUMDes Mulyoarjo
             </h1>
             <div className="flex items-center gap-1.5 text-xs text-emerald-200 md:text-sm">
@@ -156,7 +162,7 @@ export default function App() {
               <span>{dbOk ? 'Tersambung ke database' : 'Gagal tersambung -- data kosong sementara'}</span>
             </div>
           </div>
-          <div className="ml-auto flex items-center gap-3">
+          <div className="ml-auto hidden items-center gap-3 sm:flex">
             <button onClick={loadInitial} className="text-emerald-200 hover:text-white" title="Refresh data">
               <RefreshCw className="h-4 w-4" />
             </button>
@@ -167,16 +173,25 @@ export default function App() {
               </span>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={() => setNavOpen((open) => !open)}
+            className="ml-auto inline-flex items-center justify-center rounded-lg border border-emerald-700/60 bg-emerald-900/40 p-2 text-emerald-100 sm:hidden"
+            aria-label={navOpen ? 'Tutup menu navigasi' : 'Buka menu navigasi'}
+            aria-expanded={navOpen}
+          >
+            {navOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
-        <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto border-t border-emerald-700/50 px-4">
+        <nav className="mx-auto hidden max-w-6xl gap-1 overflow-x-auto border-t border-emerald-700/50 px-4 sm:flex">
           {tabs.map((item) => {
             const Icon = item.icon;
             const active = tab === item.key;
             return (
               <button
                 key={item.key}
-                onClick={() => setTab(item.key)}
-                className={`flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors ${active ? 'border-amber-400 text-white' : 'border-transparent text-emerald-200 hover:text-white'}`}
+                onClick={() => handleTabChange(item.key)}
+                className={`flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors ${active ? 'border-amber-400 text-white' : 'border-transparent text-emerald-200 hover:text-white'}`}
               >
                 <Icon className="h-4 w-4" />
                 {item.label}
@@ -184,6 +199,26 @@ export default function App() {
             );
           })}
         </nav>
+        {navOpen && (
+          <nav className="mx-auto border-t border-emerald-700/50 px-4 py-3 sm:hidden">
+            <div className="grid grid-cols-1 gap-2">
+              {tabs.map((item) => {
+                const Icon = item.icon;
+                const active = tab === item.key;
+                return (
+                  <button
+                    key={item.key}
+                    onClick={() => handleTabChange(item.key)}
+                    className={`flex w-full items-center gap-2 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors ${active ? 'border-amber-400 bg-emerald-900/50 text-white' : 'border-emerald-700/60 bg-emerald-900/20 text-emerald-100 hover:bg-emerald-900/35'}`}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+          </nav>
+        )}
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-6">
