@@ -19,7 +19,7 @@ create unique index if not exists units_code_key on public.units (code);
 create table if not exists public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   full_name text not null default '',
-  role text not null default 'viewer' check (role in ('super_admin', 'unit_admin', 'staff', 'viewer')),
+  role text not null default 'viewer' check (role in ('super_admin', 'operator', 'unit_admin', 'staff', 'viewer')),
   unit_id uuid references public.units (id) on delete set null,
   status text not null default 'pending' check (status in ('pending', 'approved', 'disabled')),
   can_view_all boolean not null default false,
@@ -208,7 +208,7 @@ begin
     coalesce(full_name, ''),
     case
       when first_profile then 'super_admin'
-      when requested_role in ('super_admin', 'unit_admin', 'staff', 'viewer') then requested_role
+      when requested_role in ('super_admin', 'operator', 'unit_admin', 'staff', 'viewer') then requested_role
       else 'viewer'
     end,
     requested_unit_id,

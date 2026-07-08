@@ -4,9 +4,10 @@ import { ArrowRight, Lock, LogIn, UserPlus } from 'lucide-react';
 export default function AuthPanel({ units, busy, message, mode, onModeChange, onLogin, onSignup }) {
   const [form, setForm] = useState({
     fullName: '',
-    email: '',
+    phone: '',
     password: '',
     unitId: '',
+    customUnitName: '',
   });
 
   const unitOptions = useMemo(() => units ?? [], [units]);
@@ -14,14 +15,15 @@ export default function AuthPanel({ units, busy, message, mode, onModeChange, on
   const submit = async (event) => {
     event.preventDefault();
     if (mode === 'login') {
-      await onLogin({ email: form.email.trim(), password: form.password });
+      await onLogin({ phone: form.phone.trim(), password: form.password });
       return;
     }
     await onSignup({
       fullName: form.fullName.trim(),
-      email: form.email.trim(),
+      phone: form.phone.trim(),
       password: form.password,
       unitId: form.unitId || null,
+      customUnitName: form.customUnitName?.trim() || null,
     });
   };
 
@@ -87,13 +89,13 @@ export default function AuthPanel({ units, busy, message, mode, onModeChange, on
             )}
 
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">Email</label>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">Phone</label>
               <input
-                type="email"
-                value={form.email}
-                onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
+                type="tel"
+                value={form.phone}
+                onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
                 className="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none ring-0 focus:border-emerald-500"
-                placeholder="nama@bumdes.id"
+                placeholder="+628xxxxxxxxxx"
                 required
               />
             </div>
@@ -124,7 +126,20 @@ export default function AuthPanel({ units, busy, message, mode, onModeChange, on
                       {unit.name}
                     </option>
                   ))}
+                  <option value="other">Other (Buat unit baru)</option>
                 </select>
+                {form.unitId === 'other' && (
+                  <div className="mt-3">
+                    <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">Nama Unit Baru</label>
+                    <input
+                      value={form.customUnitName}
+                      onChange={(event) => setForm((current) => ({ ...current, customUnitName: event.target.value }))}
+                      className="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none ring-0 focus:border-emerald-500"
+                      placeholder="Contoh: Bumdes Mulyoarjo"
+                      required
+                    />
+                  </div>
+                )}
                 <p className="mt-2 text-xs text-stone-500">
                   Jika ini akun pertama, sistem akan otomatis menjadikannya Super Admin.
                 </p>

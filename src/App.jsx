@@ -6,6 +6,7 @@ import EmblemBadge from './components/EmblemBadge';
 import GudangSection from './components/GudangSection';
 import ImportExportSection from './components/ImportExportSection';
 import LedgerSection from './components/LedgerSection';
+import OperatorDashboard from './components/OperatorDashboard';
 import { KATEGORI_PETELUR, KATEGORI_UMUM, ROLE_LABELS, SUMBER_PETELUR, SUMBER_UMUM, TABLE_MAP, UNIT_SCOPE_ALL } from './lib/constants';
 import { sbDelete, sbDeleteWhere, sbInsert, sbSelect } from './lib/api';
 import { buildGudangAlerts, buildMonthlyData, computeRingkasan } from './lib/analytics';
@@ -207,17 +208,17 @@ export default function App() {
     }
   }, [session, profile, isSuperAdmin, selectedUnitId, currentUnitId, loadDataForScope]);
 
-  const handleLogin = async ({ email, password }) => {
+  const handleLogin = async ({ phone, password }) => {
     setAuthBusy(true);
     setAuthMessage(null);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ phone, password });
     if (error) {
       setAuthMessage({ type: 'error', text: error.message || 'Gagal masuk.' });
     }
     setAuthBusy(false);
   };
 
-  const handleSignup = async ({ fullName, email, password, unitId }) => {
+  const handleSignup = async ({ fullName, phone, password, unitId, customUnitName }) => {
     setAuthBusy(true);
     setAuthMessage(null);
 
@@ -226,12 +227,13 @@ export default function App() {
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       const { error } = await supabase.auth.signUp({
-        email,
+        phone,
         password,
         options: {
           data: {
             full_name: fullName,
-            requested_unit_id: unitId,
+            requested_unit_id: unitId && unitId !== 'other' ? unitId : null,
+            requested_unit_name: unitId === 'other' ? customUnitName : null,
             requested_role: 'staff',
           },
         },
@@ -350,6 +352,11 @@ export default function App() {
     { key: 'gudang', label: 'Buku Gudang', icon: Warehouse },
     { key: 'importExport', label: 'Impor / Ekspor', icon: FileSpreadsheet },
   ];
+
+  // Add operator dashboard tab for operator users and super admins
+  if (isSuperAdmin || profile?.role === 'operator') {
+    tabs.push({ key: 'operator', label: 'Operator Dashboard', icon: LayoutDashboard });
+  }
 
   const handleTabChange = (key) => {
     setTab(key);
@@ -606,6 +613,12 @@ export default function App() {
           </div>
         ))}
 
+        {tab === 'operator' && (
+          <div className="">
+            <OperatorDashboard session={session} />
+          </div>
+        )}
+
         {tab === 'importExport' && (!overviewOnly ? (
           <ImportExportSection data={data} onImportReplace={replaceAllData} onReset={handleReset} computeRingkasan={computeRingkasan} profile={profile} selectedUnitId={selectedUnitId} currentUnitLabel={currentUnitLabel} session={session} />
         ) : (
@@ -616,7 +629,8 @@ export default function App() {
       </main>
 
       <footer className="mx-auto max-w-6xl px-4 py-6 text-center text-xs text-stone-400">
-        Data tersimpan di database BUMDes Mulyoarjo -- otomatis update di semua perangkat.
+        <div>Data tersimpan di database BUMDes Mulyoarjo — otomatis update di semua perangkat.</div>
+        <div className="mt-1">Brand: MSA • Contact: Bu Shefi — +62 896-5658-9449</div>
       </footer>
     </div>
   );

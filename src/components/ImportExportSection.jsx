@@ -60,14 +60,14 @@ export default function ImportExportSection({ data, onImportReplace, onReset, co
   const handleExport = () => {
     if (!canExport) return;
     const workbook = buildWorkbook(data, computeRingkasan, profile, selectedUnitId, currentUnitLabel);
-    XLSX.writeFile(workbook, `BMSA_Export_${todayStr()}.xlsx`);
+    XLSX.writeFile(workbook, `BMSA_Export_${todayStr()}_MSA.xlsx`);
     setMsg({ type: 'success', text: 'File berhasil di-download.' });
     setTimeout(() => setMsg(null), 3000);
   };
 
   const handleTemplate = () => {
     const workbook = createEmptyWorkbook(computeRingkasan, profile);
-    XLSX.writeFile(workbook, 'Template_BMSA.xlsx');
+    XLSX.writeFile(workbook, 'Template_BMSA_MSA.xlsx');
     setMsg({ type: 'success', text: 'Template kosong berhasil di-download.' });
     setTimeout(() => setMsg(null), 3000);
   };
