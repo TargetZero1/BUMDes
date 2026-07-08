@@ -37,6 +37,18 @@ Apply the migration in `supabase/migrations/20260707000000_bumdes_auth_units.sql
 4. RLS policies check `can_access_unit()` function which validates unit membership or super-admin status
 5. App passes user `access_token` to all queries for automatic session-based RLS
 
+**Admin recovery / manual setup:**
+- If the `profiles` table is missing `phone` or `password_hash`, apply `supabase/migrations/20260711070000_profiles_fix_schema.sql`
+- To approve a pending profile and optionally set a password hash, run:
+  ```bash
+  SUPABASE_SERVICE_ROLE_KEY=<service_role_key> node scripts/approve_profile_rest.js "+62882009759102" "NewPassword"
+  ```
+- Omit the password argument if you only need approval:
+  ```bash
+  SUPABASE_SERVICE_ROLE_KEY=<service_role_key> node scripts/approve_profile_rest.js "+62882009759102"
+  ```
+- Do not use a service role key in frontend code; keep it only in local admin scripts or server-side tooling.
+
 ## Free Hosting
 
 Best quick options for this app:
