@@ -97,18 +97,29 @@ export default function App() {
     loadUnits();
   }, [loadUnits]);
 
-  const loadProfile = useCallback(async (userId, accessToken) => {
-    const rows = await sbSelect('profiles', {
-      accessToken,
-      query: `select=id,full_name,role,unit_id,status,can_view_all&id=eq.${userId}`,
-    });
-    const nextProfile = rows?.[0] ?? null;
-    setProfile(nextProfile);
+  const loadProfile = useCallback(async (userId, accessToken, fallbackProfile = null) => {
+    try {
+      const rows = await sbSelect('profiles', {
+        accessToken,
+        query: `select=id,full_name,role,unit_id,status,can_view_all&id=eq.${userId}`,
+      });
+      const nextProfile = rows?.[0] ?? fallbackProfile ?? null;
+      setProfile(nextProfile);
 
-    if (nextProfile?.role === 'super_admin' || nextProfile?.can_view_all) {
-      setSelectedUnitId((current) => (current === UNIT_SCOPE_ALL ? UNIT_SCOPE_ALL : current));
-    } else if (nextProfile?.unit_id) {
-      setSelectedUnitId(nextProfile.unit_id);
+      if (nextProfile?.role === 'super_admin' || nextProfile?.can_view_all) {
+        setSelectedUnitId((current) => (current === UNIT_SCOPE_ALL ? UNIT_SCOPE_ALL : current));
+      } else if (nextProfile?.unit_id) {
+        setSelectedUnitId(nextProfile.unit_id);
+      }
+    } catch {
+      const nextProfile = fallbackProfile ?? null;
+      setProfile(nextProfile);
+
+      if (nextProfile?.role === 'super_admin' || nextProfile?.can_view_all) {
+        setSelectedUnitId((current) => (current === UNIT_SCOPE_ALL ? UNIT_SCOPE_ALL : current));
+      } else if (nextProfile?.unit_id) {
+        setSelectedUnitId(nextProfile.unit_id);
+      }
     }
   }, []);
 
@@ -145,16 +156,21 @@ export default function App() {
     let active = true;
     setLoaded(false);
 
-    loadProfile(session.user.id, session.access_token).catch(() => {
+    loadProfile(session.user.id, session.access_token, session.user).catch(() => {
       if (!active) return;
-      setProfile({
-        id: session.user.id,
-        full_name: session.user.email || 'User',
-        role: 'viewer',
-        unit_id: null,
-        status: 'pending',
-        can_view_all: false,
-      });
+      const fallbackProfile = session.user ?? null;
+      if (fallbackProfile) {
+        setProfile(fallbackProfile);
+      } else {
+        setProfile({
+          id: session.user.id,
+          full_name: session.user.email || 'User',
+          role: 'viewer',
+          unit_id: null,
+          status: 'pending',
+          can_view_all: false,
+        });
+      }
       setAuthMessage({ type: 'error', text: 'Profil user belum siap. Hubungi super admin untuk approval.' });
     });
 
