@@ -1,12 +1,28 @@
 import { REST, SUPABASE_KEY } from './supabase';
 
+function getApiKey() {
+  const key = SUPABASE_KEY || '';
+  return key.startsWith('sb_') ? key : '';
+}
+
 export function sbHeaders(accessToken, extra = {}) {
-  return {
-    apikey: SUPABASE_KEY,
-    Authorization: `Bearer ${accessToken || SUPABASE_KEY}`,
+  const apiKey = getApiKey();
+  const headers = {
     'Content-Type': 'application/json',
     ...extra,
   };
+
+  if (apiKey) {
+    headers.apikey = apiKey;
+  }
+
+  if (accessToken) {
+    headers.Authorization = `Bearer ${accessToken}`;
+  } else if (apiKey) {
+    headers.Authorization = `Bearer ${apiKey}`;
+  }
+
+  return headers;
 }
 
 export async function sbSelect(table, { accessToken, query = 'select=*&order=tanggal.desc' } = {}) {
