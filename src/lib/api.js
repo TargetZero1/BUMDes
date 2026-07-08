@@ -26,6 +26,16 @@ export async function sbInsert(table, rows, { accessToken } = {}) {
   return response.json();
 }
 
+export async function sbRpc(functionName, body, { accessToken } = {}) {
+  const response = await fetch(`${REST}/rpc/${functionName}`, {
+    method: 'POST',
+    headers: sbHeaders(accessToken),
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) throw new Error(`Gagal panggil fungsi ${functionName}`);
+  return response.json();
+}
+
 export async function sbDelete(table, id, { accessToken } = {}) {
   const response = await fetch(`${REST}/${table}?id=eq.${id}`, {
     method: 'DELETE',

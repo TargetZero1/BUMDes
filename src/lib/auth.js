@@ -1,4 +1,4 @@
-import { sbSelect, sbInsert } from './api';
+import { sbSelect, sbInsert, sbRpc } from './api';
 import { SUPABASE_KEY } from './supabase';
 
 async function hashPassword(password) {
@@ -18,18 +18,16 @@ export async function dbSignUp({ fullName, phone, password, requested_unit_id = 
   const profile = rows?.[0] ?? null;
   if (!profile) throw new Error('Failed create profile');
 
-  // create a simple session-like object for the app; use publishable key as access_token so REST calls continue
   return { user: { id: profile.id, phone: profile.phone }, access_token: SUPABASE_KEY };
 }
 
 export async function dbSignIn({ phone, password }) {
-  const rows = await sbSelect('profiles', { query: `phone=eq.${encodeURIComponent(phone)}` });
-  const profile = rows?.[0] ?? null;
-  if (!profile) throw new Error('No account for that phone');
-  if (profile.status !== 'approved') throw new Error('Account not approved');
-
   const password_hash = await hashPassword(password);
-  if (password_hash !== profile.password_hash) throw new Error('Invalid credentials');
+  const rows = await sbRpc('db_sign_in', { p_phone: phone, p_password_hash: password_hash });
+  const profile = rows?.[0] ?? null;
+
+  if (!profile) throw new Error('No account for that phone or invalid credentials');
+  if (profile.status !== 'approved') throw new Error('Account not approved');
 
   return { user: { id: profile.id, phone: profile.phone }, access_token: SUPABASE_KEY };
 }
