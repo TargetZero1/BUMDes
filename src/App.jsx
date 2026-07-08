@@ -445,7 +445,6 @@ export default function App() {
               <LogOut className="h-4 w-4" />
             </button>
             <div className="hidden items-center gap-1.5 text-sm text-amber-300 sm:flex">
-              <Banknote className="h-4 w-4" />
               <span className="font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 {formatRupiah(computeRingkasan(data).grand.bersih)}
               </span>

@@ -21,7 +21,7 @@ export default function Dashboard({ kasUmumTotals, kasPetelurTotals, grandTotals
           </p>
         </div>
         <div className="text-sm opacity-80 sm:max-w-md">
-          Gabungan Kas Umum + Kas RKU Petelur. Transfer dana antar unit otomatis kesaring, jadi angkanya gak dobel hitung.
+          Gabungan Kas Umum + Kas RKU Petelur. Semua transaksi tercatat secara otomatis dan tampil dalam ringkasan yang konsisten.
         </div>
       </div>
 
