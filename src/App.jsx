@@ -15,8 +15,6 @@ import { sbDelete, sbDeleteWhere, sbInsert, sbSelect } from './lib/api';
 import { buildGudangAlerts, buildMonthlyData, computeRingkasan } from './lib/analytics';
 import { emptyData, rowToEntry, rowToGudang } from './lib/data';
 import { formatRupiah } from './lib/formatters';
-import { supabase } from './lib/supabaseClient';
-import { USE_DB_AUTH } from './lib/supabase';
 import { dbSignIn, dbSignUp } from './lib/auth';
 
 const DATA_TABLES = ['kas_umum_debit', 'kas_umum_kredit', 'kas_petelur_debit', 'kas_petelur_kredit', 'gudang'];
@@ -83,29 +81,7 @@ export default function App() {
   const overviewOnly = isSuperAdmin && selectedUnitId === UNIT_SCOPE_ALL;
 
   useEffect(() => {
-    if (USE_DB_AUTH) {
-      setAuthReady(true);
-      return;
-    }
-
-    let active = true;
-    supabase.auth
-      .getSession()
-      .then(({ data: authData }) => {
-        if (active) setSession(authData.session ?? null);
-      })
-      .finally(() => {
-        if (active) setAuthReady(true);
-      });
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession ?? null);
-    });
-
-    return () => {
-      active = false;
-      authListener.subscription.unsubscribe();
-    };
+    setAuthReady(true);
   }, []);
 
   const loadUnits = useCallback(async () => {
@@ -222,15 +198,10 @@ export default function App() {
     setAuthBusy(true);
     setAuthMessage(null);
     try {
-      if (USE_DB_AUTH) {
-        const sess = await dbSignIn({ phone, password });
-        setSession(sess);
-        setAuthBusy(false);
-        return;
-      }
-
-      const { error } = await supabase.auth.signInWithPassword({ phone, password });
-      if (error) setAuthMessage({ type: 'error', text: error.message || 'Gagal masuk.' });
+      const sess = await dbSignIn({ phone, password });
+      setSession(sess);
+      setAuthBusy(false);
+      return;
     } catch (err) {
       setAuthMessage({ type: 'error', text: err.message || 'Gagal masuk.' });
     }
@@ -241,61 +212,17 @@ export default function App() {
     setAuthBusy(true);
     setAuthMessage(null);
 
-    const maxRetries = 5;
-    let lastError = null;
-
     try {
-      if (USE_DB_AUTH) {
-        const sess = await dbSignUp({ fullName, phone, password, requested_unit_id: unitId && unitId !== 'other' ? unitId : null, requested_unit_name: unitId === 'other' ? customUnitName : null });
-        setSession(sess);
-        setAuthBusy(false);
-        setAuthMessage({ type: 'success', text: 'Pendaftaran berhasil (DB auth).' });
-        return;
-      }
-
-      for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        const { error } = await supabase.auth.signUp({
-          phone,
-          password,
-          options: {
-            data: {
-              full_name: fullName,
-              requested_unit_id: unitId && unitId !== 'other' ? unitId : null,
-              requested_unit_name: unitId === 'other' ? customUnitName : null,
-              requested_role: 'staff',
-            },
-          },
-        });
-
-        if (!error) {
-          setAuthMessage({
-            type: 'success',
-            text: 'Pendaftaran berhasil. Jika email confirmation aktif, cek inbox kamu. Akun pertama akan otomatis jadi Super Admin.',
-          });
-          setAuthBusy(false);
-          return;
-        }
-
-        lastError = error;
-
-        // Only retry on rate limit (429) errors
-        if (error.status !== 429 || attempt === maxRetries) {
-          setAuthMessage({ type: 'error', text: error.message || 'Gagal daftar.' });
-          setAuthBusy(false);
-          return;
-        }
-
-        // Exponential backoff: 1s, 2s, 4s, 8s, 16s
-        const delayMs = Math.pow(2, attempt - 1) * 1000;
-        setAuthMessage({
-          type: 'error',
-          text: `Rate limit. Coba ulang dalam ${delayMs / 1000}s... (percobaan ${attempt}/${maxRetries})`,
-        });
-        await new Promise((resolve) => setTimeout(resolve, delayMs));
-      }
-
-      setAuthMessage({ type: 'error', text: lastError?.message || 'Gagal daftar setelah 5 percobaan.' });
+      const sess = await dbSignUp({
+        fullName,
+        phone,
+        password,
+        requested_unit_id: unitId && unitId !== 'other' ? unitId : null,
+        requested_unit_name: unitId === 'other' ? customUnitName : null,
+      });
+      setSession(sess);
       setAuthBusy(false);
+      setAuthMessage({ type: 'success', text: 'Pendaftaran berhasil.' });
     } catch (err) {
       setAuthMessage({ type: 'error', text: err.message || 'Gagal daftar.' });
       setAuthBusy(false);
@@ -303,9 +230,6 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    if (!USE_DB_AUTH) {
-      await supabase.auth.signOut();
-    }
     setSession(null);
     setProfile(null);
     setData(null);

@@ -18,7 +18,7 @@ export async function dbSignUp({ fullName, phone, password, requested_unit_id = 
   const profile = rows?.[0] ?? null;
   if (!profile) throw new Error('Failed create profile');
 
-  return { user: { id: profile.id, phone: profile.phone }, access_token: SUPABASE_KEY };
+  return { user: profile, access_token: SUPABASE_KEY };
 }
 
 export async function dbSignIn({ phone, password }) {
@@ -29,5 +29,5 @@ export async function dbSignIn({ phone, password }) {
   if (!profile) throw new Error('No account for that phone or invalid credentials');
   if (profile.status !== 'approved') throw new Error('Account not approved');
 
-  return { user: { id: profile.id, phone: profile.phone }, access_token: SUPABASE_KEY };
+  return { user: profile, access_token: SUPABASE_KEY };
 }
