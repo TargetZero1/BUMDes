@@ -16,6 +16,8 @@ export function rowToEntry(row) {
     jumlah: Number(row.jumlah) || 0,
     unitId: row.unit_id ?? null,
     createdBy: row.created_by ?? null,
+    transferId: row.transfer_id ?? null,
+    invoiceUrl: row.invoice_url ?? row.pdf_url ?? null,
   };
 }
 

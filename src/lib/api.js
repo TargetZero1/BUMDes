@@ -42,6 +42,16 @@ export async function sbDeleteWhere(table, query, { accessToken } = {}) {
   if (!response.ok) throw new Error(`Gagal hapus dari ${table}`);
 }
 
+export async function sbPatch(table, id, patchBody, { accessToken } = {}) {
+  const response = await fetch(`${REST}/${table}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: sbHeaders(accessToken, { Prefer: 'return=representation' }),
+    body: JSON.stringify(patchBody),
+  });
+  if (!response.ok) throw new Error(`Gagal update ${table}`);
+  return response.json();
+}
+
 export async function sbDeleteAll(table, { accessToken } = {}) {
   const response = await fetch(`${REST}/${table}?id=not.is.null`, {
     method: 'DELETE',

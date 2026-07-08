@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Banknote, Egg, FileSpreadsheet, LayoutDashboard, LogOut, Menu, RefreshCw, Wallet, Warehouse, Wifi, WifiOff, X } from 'lucide-react';
+import { Banknote, Egg, FileSpreadsheet, LayoutDashboard, LogOut, Menu, RefreshCw, Wallet, Warehouse, Wifi, WifiOff, X, Edit } from 'lucide-react';
 import AuthPanel from './components/AuthPanel';
 import Dashboard from './components/Dashboard';
 import EmblemBadge from './components/EmblemBadge';
@@ -7,12 +7,17 @@ import GudangSection from './components/GudangSection';
 import ImportExportSection from './components/ImportExportSection';
 import LedgerSection from './components/LedgerSection';
 import OperatorDashboard from './components/OperatorDashboard';
+import UnitsManager from './components/UnitsManager';
+import TransferForm from './components/TransferForm';
+import TransferApprovalQueue from './components/TransferApprovalQueue';
 import { KATEGORI_PETELUR, KATEGORI_UMUM, ROLE_LABELS, SUMBER_PETELUR, SUMBER_UMUM, TABLE_MAP, UNIT_SCOPE_ALL } from './lib/constants';
 import { sbDelete, sbDeleteWhere, sbInsert, sbSelect } from './lib/api';
 import { buildGudangAlerts, buildMonthlyData, computeRingkasan } from './lib/analytics';
 import { emptyData, rowToEntry, rowToGudang } from './lib/data';
 import { formatRupiah } from './lib/formatters';
 import { supabase } from './lib/supabaseClient';
+import { USE_DB_AUTH } from './lib/supabase';
+import { dbSignIn, dbSignUp } from './lib/auth';
 
 const DATA_TABLES = ['kas_umum_debit', 'kas_umum_kredit', 'kas_petelur_debit', 'kas_petelur_kredit', 'gudang'];
 
@@ -211,9 +216,19 @@ export default function App() {
   const handleLogin = async ({ phone, password }) => {
     setAuthBusy(true);
     setAuthMessage(null);
-    const { error } = await supabase.auth.signInWithPassword({ phone, password });
-    if (error) {
-      setAuthMessage({ type: 'error', text: error.message || 'Gagal masuk.' });
+    try {
+      if (USE_DB_AUTH) {
+        const sess = await dbSignIn({ phone, password });
+        // mimic supabase session
+        setSession(sess);
+        setAuthBusy(false);
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({ phone, password });
+      if (error) setAuthMessage({ type: 'error', text: error.message || 'Gagal masuk.' });
+    } catch (err) {
+      setAuthMessage({ type: 'error', text: err.message || 'Gagal masuk.' });
     }
     setAuthBusy(false);
   };
@@ -225,49 +240,62 @@ export default function App() {
     const maxRetries = 5;
     let lastError = null;
 
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      const { error } = await supabase.auth.signUp({
-        phone,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            requested_unit_id: unitId && unitId !== 'other' ? unitId : null,
-            requested_unit_name: unitId === 'other' ? customUnitName : null,
-            requested_role: 'staff',
+    try {
+      if (USE_DB_AUTH) {
+        const sess = await dbSignUp({ fullName, phone, password, requested_unit_id: unitId && unitId !== 'other' ? unitId : null, requested_unit_name: unitId === 'other' ? customUnitName : null });
+        setSession(sess);
+        setAuthBusy(false);
+        setAuthMessage({ type: 'success', text: 'Pendaftaran berhasil (DB auth).' });
+        return;
+      }
+
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        const { error } = await supabase.auth.signUp({
+          phone,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              requested_unit_id: unitId && unitId !== 'other' ? unitId : null,
+              requested_unit_name: unitId === 'other' ? customUnitName : null,
+              requested_role: 'staff',
+            },
           },
-        },
-      });
-
-      if (!error) {
-        setAuthMessage({
-          type: 'success',
-          text: 'Pendaftaran berhasil. Jika email confirmation aktif, cek inbox kamu. Akun pertama akan otomatis jadi Super Admin.',
         });
-        setAuthBusy(false);
-        return;
+
+        if (!error) {
+          setAuthMessage({
+            type: 'success',
+            text: 'Pendaftaran berhasil. Jika email confirmation aktif, cek inbox kamu. Akun pertama akan otomatis jadi Super Admin.',
+          });
+          setAuthBusy(false);
+          return;
+        }
+
+        lastError = error;
+
+        // Only retry on rate limit (429) errors
+        if (error.status !== 429 || attempt === maxRetries) {
+          setAuthMessage({ type: 'error', text: error.message || 'Gagal daftar.' });
+          setAuthBusy(false);
+          return;
+        }
+
+        // Exponential backoff: 1s, 2s, 4s, 8s, 16s
+        const delayMs = Math.pow(2, attempt - 1) * 1000;
+        setAuthMessage({
+          type: 'error',
+          text: `Rate limit. Coba ulang dalam ${delayMs / 1000}s... (percobaan ${attempt}/${maxRetries})`,
+        });
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
       }
 
-      lastError = error;
-
-      // Only retry on rate limit (429) errors
-      if (error.status !== 429 || attempt === maxRetries) {
-        setAuthMessage({ type: 'error', text: error.message || 'Gagal daftar.' });
-        setAuthBusy(false);
-        return;
-      }
-
-      // Exponential backoff: 1s, 2s, 4s, 8s, 16s
-      const delayMs = Math.pow(2, attempt - 1) * 1000;
-      setAuthMessage({
-        type: 'error',
-        text: `Rate limit. Coba ulang dalam ${delayMs / 1000}s... (percobaan ${attempt}/${maxRetries})`,
-      });
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      setAuthMessage({ type: 'error', text: lastError?.message || 'Gagal daftar setelah 5 percobaan.' });
+      setAuthBusy(false);
+    } catch (err) {
+      setAuthMessage({ type: 'error', text: err.message || 'Gagal daftar.' });
+      setAuthBusy(false);
     }
-
-    setAuthMessage({ type: 'error', text: lastError?.message || 'Gagal daftar setelah 5 percobaan.' });
-    setAuthBusy(false);
   };
 
   const handleLogout = async () => {
@@ -356,6 +384,14 @@ export default function App() {
   // Add operator dashboard tab for operator users and super admins
   if (isSuperAdmin || profile?.role === 'operator') {
     tabs.push({ key: 'operator', label: 'Operator Dashboard', icon: LayoutDashboard });
+  }
+
+  if (isSuperAdmin) {
+    tabs.push({ key: 'units', label: 'Manage Units', icon: Edit });
+  }
+
+  if (profile?.role === 'unit_admin' || profile?.role === 'super_admin') {
+    tabs.push({ key: 'transfers', label: 'Transfers', icon: Banknote });
   }
 
   const handleTabChange = (key) => {
@@ -616,6 +652,23 @@ export default function App() {
         {tab === 'operator' && (
           <div className="">
             <OperatorDashboard session={session} />
+          </div>
+        )}
+
+        {tab === 'units' && isSuperAdmin && (
+          <div>
+            <UnitsManager session={session} />
+          </div>
+        )}
+
+        {tab === 'transfers' && (profile?.role === 'unit_admin' || profile?.role === 'super_admin') && (
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Transfers</h2>
+            <TransferForm session={session} onCreated={() => {}} />
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-2">Approval Queue</h3>
+              <TransferApprovalQueue session={session} />
+            </div>
           </div>
         )}
 
