@@ -21,12 +21,16 @@ function sha256Hex(input) {
 async function main() {
   const repoSupabase = require('../src/lib/supabase');
   const SUPABASE_URL = process.env.SUPABASE_URL || repoSupabase.SUPABASE_URL;
-  const SUPABASE_KEY = process.env.SUPABASE_KEY || repoSupabase.SUPABASE_KEY;
+  const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || repoSupabase.SUPABASE_KEY;
   const REST = `${SUPABASE_URL}/rest/v1`;
 
   if (!SUPABASE_URL || !SUPABASE_KEY) {
-    console.error('Missing SUPABASE_URL or SUPABASE_KEY in env or src/lib/supabase.js');
+    console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in env or src/lib/supabase.js');
     process.exit(1);
+  }
+
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.warn('Warning: using a non-service-role Supabase key. Admin operations may fail.');
   }
 
   const password_hash = sha256Hex(password);
