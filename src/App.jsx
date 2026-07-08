@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Banknote, Egg, FileSpreadsheet, LayoutDashboard, LogOut, Menu, RefreshCw, Wallet, Warehouse, Wifi, WifiOff, X, Edit } from 'lucide-react';
+import { Egg, FileSpreadsheet, LayoutDashboard, LogOut, Menu, RefreshCw, Wallet, Warehouse, Wifi, WifiOff, X, Edit } from 'lucide-react';
 import AuthPanel from './components/AuthPanel';
 import Dashboard from './components/Dashboard';
 import EmblemBadge from './components/EmblemBadge';
@@ -8,8 +8,6 @@ import ImportExportSection from './components/ImportExportSection';
 import LedgerSection from './components/LedgerSection';
 import OperatorDashboard from './components/OperatorDashboard';
 import UnitsManager from './components/UnitsManager';
-import TransferForm from './components/TransferForm';
-import TransferApprovalQueue from './components/TransferApprovalQueue';
 import { KATEGORI_PETELUR, KATEGORI_UMUM, ROLE_LABELS, SUMBER_PETELUR, SUMBER_UMUM, TABLE_MAP, UNIT_SCOPE_ALL } from './lib/constants';
 import { sbDelete, sbDeleteWhere, sbInsert, sbSelect } from './lib/api';
 import { buildGudangAlerts, buildMonthlyData, computeRingkasan } from './lib/analytics';
@@ -336,10 +334,6 @@ export default function App() {
     tabs.push({ key: 'units', label: 'Manage Units', icon: Edit });
   }
 
-  if (profile?.role === 'unit_admin' || profile?.role === 'super_admin') {
-    tabs.push({ key: 'transfers', label: 'Transfers', icon: Banknote });
-  }
-
   const handleTabChange = (key) => {
     setTab(key);
     setNavOpen(false);
@@ -604,17 +598,6 @@ export default function App() {
         {tab === 'units' && isSuperAdmin && (
           <div>
             <UnitsManager session={session} />
-          </div>
-        )}
-
-        {tab === 'transfers' && (profile?.role === 'unit_admin' || profile?.role === 'super_admin') && (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Transfers</h2>
-            <TransferForm session={session} onCreated={() => {}} />
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold mb-2">Approval Queue</h3>
-              <TransferApprovalQueue session={session} />
-            </div>
           </div>
         )}
 

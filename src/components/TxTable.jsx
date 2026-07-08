@@ -1,4 +1,4 @@
-import { Trash2, Download } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 
 export default function TxTable({ rows, columns, onDelete, emptyText }) {
   if (!rows.length) {
@@ -27,11 +27,6 @@ export default function TxTable({ rows, columns, onDelete, emptyText }) {
                 </td>
               ))}
               <td className="px-2 py-2 text-right flex items-center justify-end gap-2">
-                {row.invoice_url ? (
-                  <a href={row.invoice_url} target="_blank" rel="noreferrer" title="Download Invoice" className="text-stone-400 hover:text-emerald-700">
-                    <Download className="h-4 w-4" />
-                  </a>
-                ) : null}
                 <button onClick={() => onDelete(row.id)} className="text-stone-300 transition-colors hover:text-rose-600" title="Hapus">
                   <Trash2 className="h-4 w-4" />
                 </button>
