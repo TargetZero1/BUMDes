@@ -83,6 +83,11 @@ export default function App() {
   const overviewOnly = isSuperAdmin && selectedUnitId === UNIT_SCOPE_ALL;
 
   useEffect(() => {
+    if (USE_DB_AUTH) {
+      setAuthReady(true);
+      return;
+    }
+
     let active = true;
     supabase.auth
       .getSession()
@@ -219,7 +224,6 @@ export default function App() {
     try {
       if (USE_DB_AUTH) {
         const sess = await dbSignIn({ phone, password });
-        // mimic supabase session
         setSession(sess);
         setAuthBusy(false);
         return;
@@ -299,7 +303,9 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    if (!USE_DB_AUTH) {
+      await supabase.auth.signOut();
+    }
     setSession(null);
     setProfile(null);
     setData(null);
