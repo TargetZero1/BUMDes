@@ -5,6 +5,17 @@ function getApiKey() {
   return key.startsWith('sb_') ? key : '';
 }
 
+async function throwApiError(response, fallbackMessage) {
+  let detail = '';
+  try {
+    const body = await response.json();
+    detail = body?.message || body?.error_description || body?.hint || '';
+  } catch {
+    // response had no JSON body
+  }
+  throw new Error(detail ? `${fallbackMessage}: ${detail}` : fallbackMessage);
+}
+
 export function sbHeaders(accessToken, extra = {}) {
   const apiKey = getApiKey();
   const headers = {
@@ -27,18 +38,19 @@ export function sbHeaders(accessToken, extra = {}) {
 
 export async function sbSelect(table, { accessToken, query = 'select=*&order=tanggal.desc' } = {}) {
   const response = await fetch(`${REST}/${table}?${query}`, { headers: sbHeaders(accessToken) });
-  if (!response.ok) throw new Error(`Gagal ambil data ${table}`);
+  if (!response.ok) await throwApiError(response, `Gagal ambil data ${table}`);
   return response.json();
 }
 
-export async function sbInsert(table, rows, { accessToken } = {}) {
+export async function sbInsert(table, rows, { accessToken, select } = {}) {
   if (!rows.length) return [];
-  const response = await fetch(`${REST}/${table}`, {
+  const url = select ? `${REST}/${table}?select=${select}` : `${REST}/${table}`;
+  const response = await fetch(url, {
     method: 'POST',
     headers: sbHeaders(accessToken, { Prefer: 'return=representation' }),
     body: JSON.stringify(rows),
   });
-  if (!response.ok) throw new Error(`Gagal simpan ke ${table}`);
+  if (!response.ok) await throwApiError(response, `Gagal simpan ke ${table}`);
   return response.json();
 }
 
@@ -48,7 +60,7 @@ export async function sbRpc(functionName, body, { accessToken } = {}) {
     headers: sbHeaders(accessToken),
     body: JSON.stringify(body),
   });
-  if (!response.ok) throw new Error(`Gagal panggil fungsi ${functionName}`);
+  if (!response.ok) await throwApiError(response, `Gagal panggil fungsi ${functionName}`);
   return response.json();
 }
 
@@ -57,7 +69,7 @@ export async function sbDelete(table, id, { accessToken } = {}) {
     method: 'DELETE',
     headers: sbHeaders(accessToken),
   });
-  if (!response.ok) throw new Error(`Gagal hapus dari ${table}`);
+  if (!response.ok) await throwApiError(response, `Gagal hapus dari ${table}`);
 }
 
 export async function sbDeleteWhere(table, query, { accessToken } = {}) {
@@ -65,7 +77,7 @@ export async function sbDeleteWhere(table, query, { accessToken } = {}) {
     method: 'DELETE',
     headers: sbHeaders(accessToken),
   });
-  if (!response.ok) throw new Error(`Gagal hapus dari ${table}`);
+  if (!response.ok) await throwApiError(response, `Gagal hapus dari ${table}`);
 }
 
 export async function sbPatch(table, id, patchBody, { accessToken, select } = {}) {
@@ -75,7 +87,7 @@ export async function sbPatch(table, id, patchBody, { accessToken, select } = {}
     headers: sbHeaders(accessToken, { Prefer: 'return=representation' }),
     body: JSON.stringify(patchBody),
   });
-  if (!response.ok) throw new Error(`Gagal update ${table}`);
+  if (!response.ok) await throwApiError(response, `Gagal update ${table}`);
   return response.json();
 }
 
@@ -84,5 +96,5 @@ export async function sbDeleteAll(table, { accessToken } = {}) {
     method: 'DELETE',
     headers: sbHeaders(accessToken),
   });
-  if (!response.ok) throw new Error(`Gagal reset ${table}`);
+  if (!response.ok) await throwApiError(response, `Gagal reset ${table}`);
 }

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ArrowRight, Lock, LogIn, UserPlus } from 'lucide-react';
+import EmblemBadge from './EmblemBadge';
 
 export default function AuthPanel({ units, busy, message, mode, onModeChange, onLogin, onSignup }) {
   const [form, setForm] = useState({
@@ -59,21 +60,26 @@ export default function AuthPanel({ units, busy, message, mode, onModeChange, on
         </div>
 
         <div className="rounded-4xl border border-stone-200 bg-white p-5 shadow-xl shadow-stone-900/5 sm:p-7">
-          <div className="mb-5 flex gap-2 rounded-2xl bg-stone-100 p-1">
-            <button
-              type="button"
-              onClick={() => onModeChange('login')}
-              className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-colors ${mode === 'login' ? 'bg-white text-emerald-800 shadow-sm' : 'text-stone-500 hover:text-stone-700'}`}
-            >
-              <LogIn className="h-4 w-4" /> Masuk
-            </button>
-            <button
-              type="button"
-              onClick={() => onModeChange('signup')}
-              className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-colors ${mode === 'signup' ? 'bg-white text-emerald-800 shadow-sm' : 'text-stone-500 hover:text-stone-700'}`}
-            >
-              <UserPlus className="h-4 w-4" /> Daftar
-            </button>
+          <div className="mb-5 flex justify-center">
+            <EmblemBadge className="h-20 w-20" />
+          </div>
+          <div className="mb-5 flex justify-center">
+            <div className="inline-flex gap-2 rounded-2xl bg-stone-100 p-1">
+              <button
+                type="button"
+                onClick={() => onModeChange('login')}
+                className={`flex items-center justify-center gap-2 rounded-xl px-5 py-2 text-sm font-semibold transition-colors ${mode === 'login' ? 'bg-white text-emerald-800 shadow-sm' : 'text-stone-500 hover:text-stone-700'}`}
+              >
+                <LogIn className="h-4 w-4" /> Masuk
+              </button>
+              <button
+                type="button"
+                onClick={() => onModeChange('signup')}
+                className={`flex items-center justify-center gap-2 rounded-xl px-5 py-2 text-sm font-semibold transition-colors ${mode === 'signup' ? 'bg-white text-emerald-800 shadow-sm' : 'text-stone-500 hover:text-stone-700'}`}
+              >
+                <UserPlus className="h-4 w-4" /> Daftar
+              </button>
+            </div>
           </div>
 
           <form onSubmit={submit} className="space-y-4">

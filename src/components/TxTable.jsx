@@ -1,4 +1,4 @@
-import { Trash2 } from 'lucide-react';
+import ConfirmDeleteButton from './ConfirmDeleteButton';
 
 export default function TxTable({ rows, columns, onDelete, emptyText, renderExtraActions }) {
   if (!rows.length) {
@@ -35,11 +35,7 @@ export default function TxTable({ rows, columns, onDelete, emptyText, renderExtr
                 {hasActions && (
                   <td className="px-2 py-2 text-right flex items-center justify-end gap-2">
                     {renderExtraActions?.(row)}
-                    {onDelete && (
-                      <button onClick={() => onDelete(row.id)} className="text-stone-300 transition-colors hover:text-rose-600" title="Hapus">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    )}
+                    {onDelete && <ConfirmDeleteButton onConfirm={() => onDelete(row.id)} />}
                   </td>
                 )}
               </tr>
@@ -57,11 +53,7 @@ export default function TxTable({ rows, columns, onDelete, emptyText, renderExtr
               {hasActions && (
                 <div className="flex shrink-0 items-center gap-2">
                   {renderExtraActions?.(row)}
-                  {onDelete && (
-                    <button onClick={() => onDelete(row.id)} className="text-stone-300 transition-colors hover:text-rose-600" title="Hapus">
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  )}
+                  {onDelete && <ConfirmDeleteButton onConfirm={() => onDelete(row.id)} />}
                 </div>
               )}
             </div>

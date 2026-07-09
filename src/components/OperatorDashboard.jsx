@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { FileDown, Store } from 'lucide-react';
 import { sbSelect } from '../lib/api';
 import { formatRupiah } from '../lib/formatters';
-import { generateUnitOverviewPDF } from '../lib/invoice';
 
 export default function OperatorDashboard({ session }) {
   const [rows, setRows] = useState([]);
@@ -19,7 +18,8 @@ export default function OperatorDashboard({ session }) {
     return () => { active = false; };
   }, [session]);
 
-  const exportPDF = (unit) => {
+  const exportPDF = async (unit) => {
+    const { generateUnitOverviewPDF } = await import('../lib/invoice');
     generateUnitOverviewPDF(unit, session?.user?.full_name || 'Operator BUMDes');
   };
 

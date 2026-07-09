@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Landmark, Trash2, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
+import { Landmark, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
+import ConfirmDeleteButton from './ConfirmDeleteButton';
 import EntryForm from './EntryForm';
 import StatCard from './StatCard';
 import TxTable from './TxTable';
@@ -75,7 +76,7 @@ export default function KasUmumBumdes({ units, kasUmumEntries, allUnitsLedger, o
             submitLabel="Tambah Pemasukan"
             fields={[
               { key: 'tanggal', label: 'Tanggal', type: 'date', default: new Date().toISOString().slice(0, 10) },
-              { key: 'jumlah', label: 'Jumlah (Rp)', type: 'number', step: 1000, placeholder: '0' },
+              { key: 'jumlah', label: 'Jumlah (Rp)', type: 'currency', placeholder: '0' },
               { key: 'uraian', label: 'Uraian', span2: true, placeholder: 'Contoh: Setoran Toko' },
               { key: 'sumber', label: 'Sumber Pemasukan', type: 'select', options: SUMBER_UMUM, span2: true },
             ]}
@@ -93,7 +94,7 @@ export default function KasUmumBumdes({ units, kasUmumEntries, allUnitsLedger, o
             submitLabel="Tambah Pengeluaran"
             fields={[
               { key: 'tanggal', label: 'Tanggal', type: 'date', default: new Date().toISOString().slice(0, 10) },
-              { key: 'jumlah', label: 'Jumlah (Rp)', type: 'number', step: 1000, placeholder: '0' },
+              { key: 'jumlah', label: 'Jumlah (Rp)', type: 'currency', placeholder: '0' },
               { key: 'uraian', label: 'Uraian', span2: true, placeholder: 'Contoh: Beli ATK' },
               { key: 'kategori', label: 'Kategori Pengeluaran', type: 'select', options: KATEGORI_UMUM, span2: true },
             ]}
@@ -138,13 +139,7 @@ export default function KasUmumBumdes({ units, kasUmumEntries, allUnitsLedger, o
           emptyText="Belum ada transaksi."
           renderExtraActions={(row) =>
             row.sourceId === 'central' ? (
-              <button
-                onClick={() => (row.tipe === 'Pemasukan' ? onDeleteDebit(row.id) : onDeleteKredit(row.id))}
-                className="text-stone-300 transition-colors hover:text-rose-600"
-                title="Hapus"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+              <ConfirmDeleteButton onConfirm={() => (row.tipe === 'Pemasukan' ? onDeleteDebit(row.id) : onDeleteKredit(row.id))} />
             ) : (
               <span className="text-[0.65rem] text-stone-300" title="Kelola dari halaman Kas Unit">
                 --
@@ -181,28 +176,52 @@ export default function KasUmumBumdes({ units, kasUmumEntries, allUnitsLedger, o
         {perUnitBreakdown.length === 0 ? (
           <div className="py-6 text-center text-sm italic text-stone-400">Belum ada data.</div>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-stone-200">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-stone-100 text-xs uppercase tracking-wide text-stone-500">
-                  <th className="px-3 py-2 text-left font-semibold">Unit</th>
-                  <th className="px-3 py-2 text-left font-semibold">Pemasukan</th>
-                  <th className="px-3 py-2 text-left font-semibold">Pengeluaran</th>
-                  <th className="px-3 py-2 text-left font-semibold">Bersih</th>
-                </tr>
-              </thead>
-              <tbody>
-                {perUnitBreakdown.map((row) => (
-                  <tr key={row.key} className="border-t border-stone-100">
-                    <td className="px-3 py-2 font-medium">{row.name}</td>
-                    <td className="px-3 py-2 text-emerald-700">{formatRupiah(row.pemasukan)}</td>
-                    <td className="px-3 py-2 text-rose-700">{formatRupiah(row.pengeluaran)}</td>
-                    <td className="px-3 py-2 font-semibold text-amber-700">{formatRupiah(row.pemasukan - row.pengeluaran)}</td>
+          <>
+            <div className="hidden overflow-x-auto rounded-xl border border-stone-200 sm:block">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-stone-100 text-xs uppercase tracking-wide text-stone-500">
+                    <th className="px-3 py-2 text-left font-semibold">Unit</th>
+                    <th className="px-3 py-2 text-left font-semibold">Pemasukan</th>
+                    <th className="px-3 py-2 text-left font-semibold">Pengeluaran</th>
+                    <th className="px-3 py-2 text-left font-semibold">Bersih</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {perUnitBreakdown.map((row) => (
+                    <tr key={row.key} className="border-t border-stone-100">
+                      <td className="px-3 py-2 font-medium">{row.name}</td>
+                      <td className="px-3 py-2 text-emerald-700">{formatRupiah(row.pemasukan)}</td>
+                      <td className="px-3 py-2 text-rose-700">{formatRupiah(row.pengeluaran)}</td>
+                      <td className="px-3 py-2 font-semibold text-amber-700">{formatRupiah(row.pemasukan - row.pengeluaran)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="space-y-2 sm:hidden">
+              {perUnitBreakdown.map((row) => (
+                <div key={row.key} className="rounded-xl border border-stone-200 bg-white p-3">
+                  <p className="mb-1.5 text-sm font-semibold text-stone-800">{row.name}</p>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-stone-400">Pemasukan</span>
+                      <span className="font-medium text-emerald-700">{formatRupiah(row.pemasukan)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-stone-400">Pengeluaran</span>
+                      <span className="font-medium text-rose-700">{formatRupiah(row.pengeluaran)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-stone-400">Bersih</span>
+                      <span className="font-semibold text-amber-700">{formatRupiah(row.pemasukan - row.pengeluaran)}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

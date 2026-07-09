@@ -2,9 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FileDown } from 'lucide-react';
 import EntryForm from './EntryForm';
 import TxTable from './TxTable';
-import { sbSelect, sbRpc } from '../lib/api';
+import { sbRpc } from '../lib/api';
 import { formatRupiah, formatTanggal } from '../lib/formatters';
-import { generateTransferInvoicePDF } from '../lib/invoice';
 import { BANK_LIST } from '../lib/constants';
 
 export default function TransferToUnit({ session, profile, units, canSend, currentUnitId }) {
@@ -18,8 +17,11 @@ export default function TransferToUnit({ session, profile, units, canSend, curre
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const query = canSend ? 'select=*&order=tanggal.desc' : `select=*&unit_id=eq.${currentUnitId}&order=tanggal.desc`;
-      const data = await sbSelect('pengeluaran_unit', { accessToken: session?.access_token, query });
+      const data = await sbRpc(
+        'list_pengeluaran_unit',
+        { p_caller_id: session?.user?.id || null, p_unit_id: canSend ? null : currentUnitId },
+        { accessToken: session?.access_token }
+      );
       setRows(data || []);
     } catch (err) {
       console.error('Failed load transfers', err);
@@ -27,7 +29,7 @@ export default function TransferToUnit({ session, profile, units, canSend, curre
     } finally {
       setLoading(false);
     }
-  }, [session?.access_token, canSend, currentUnitId]);
+  }, [session?.access_token, session?.user?.id, canSend, currentUnitId]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -90,7 +92,7 @@ export default function TransferToUnit({ session, profile, units, canSend, curre
                 { key: 'uraian', label: 'Keterangan', span2: true, placeholder: 'Contoh: Pembelian pakan ayam' },
                 { key: 'bankName', label: 'Bank', span2: true, placeholder: 'Pilih atau ketik nama bank', listId: 'bank-list', listOptions: BANK_LIST },
                 { key: 'accountNumber', label: 'Nomor Rekening', span2: true, placeholder: 'Contoh: 1234567890' },
-                { key: 'jumlah', label: 'Jumlah (Rp)', type: 'number', span2: true },
+                { key: 'jumlah', label: 'Jumlah (Rp)', type: 'currency', span2: true },
               ]}
               onSubmit={(values) => {
                 const unit = unitOptions.find((u) => u.name === values.unitId);
@@ -111,7 +113,10 @@ export default function TransferToUnit({ session, profile, units, canSend, curre
               emptyText="Belum ada transfer."
               renderExtraActions={(row) => (
                 <button
-                  onClick={() => generateTransferInvoicePDF(row, unitNameFor(row.unit_id), profile?.full_name || 'Operator BUMDes')}
+                  onClick={async () => {
+                    const { generateTransferInvoicePDF } = await import('../lib/invoice');
+                    generateTransferInvoicePDF(row, unitNameFor(row.unit_id), profile?.full_name || 'Operator BUMDes');
+                  }}
                   className="text-stone-400 transition-colors hover:text-emerald-700"
                   title="Unduh Invoice PDF"
                 >

@@ -30,6 +30,48 @@ async function getLogoDataUrl() {
   return cachedLogoDataUrl;
 }
 
+let cachedWatermarkDataUrl;
+async function getWatermarkDataUrl() {
+  if (cachedWatermarkDataUrl !== undefined) return cachedWatermarkDataUrl;
+  try {
+    const image = await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = logoUrl;
+    });
+    const canvas = document.createElement('canvas');
+    canvas.width = image.naturalWidth || image.width;
+    canvas.height = image.naturalHeight || image.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(image, 0, 0);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const px = imageData.data;
+    for (let i = 0; i < px.length; i += 4) {
+      const gray = px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114;
+      px[i] = gray;
+      px[i + 1] = gray;
+      px[i + 2] = gray;
+    }
+    ctx.putImageData(imageData, 0, 0);
+    cachedWatermarkDataUrl = canvas.toDataURL('image/png');
+  } catch {
+    cachedWatermarkDataUrl = null;
+  }
+  return cachedWatermarkDataUrl;
+}
+
+function drawWatermark(doc, watermarkDataUrl) {
+  if (!watermarkDataUrl) return;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const size = 190;
+  doc.saveGraphicsState();
+  doc.setGState(new doc.GState({ opacity: 0.07 }));
+  doc.addImage(watermarkDataUrl, 'PNG', (pageWidth - size) / 2, (pageHeight - size) / 2, size, size);
+  doc.restoreGraphicsState();
+}
+
 function drawHeader(doc, title) {
   const pageWidth = doc.internal.pageSize.getWidth();
   doc.setFillColor(...LIGHT_BLUE);
@@ -160,6 +202,7 @@ function drawFooterBar(doc, y, text) {
 export async function generateTransferInvoicePDF(transfer, unitName, issuerName) {
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const logoDataUrl = await getLogoDataUrl();
+  drawWatermark(doc, await getWatermarkDataUrl());
 
   drawHeader(doc, 'INVOICE');
   let y = drawOrgContact(doc, logoDataUrl);
@@ -227,6 +270,7 @@ export async function generateTransferInvoicePDF(transfer, unitName, issuerName)
 export async function generateUnitOverviewPDF(unit, issuerName) {
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const logoDataUrl = await getLogoDataUrl();
+  drawWatermark(doc, await getWatermarkDataUrl());
 
   drawHeader(doc, 'LAPORAN');
   let y = drawOrgContact(doc, logoDataUrl);

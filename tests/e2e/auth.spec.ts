@@ -2,13 +2,16 @@ import { test, expect } from '@playwright/test';
 
 // NOTE: configure baseURL in playwright.config.ts or use process.env.BASE_URL
 const base = process.env.BASE_URL || 'http://localhost:5173';
+const testPhone = process.env.E2E_TEST_PHONE;
+const testPassword = process.env.E2E_TEST_PASSWORD;
 
 test.describe('Auth flows', () => {
   test('login with phone works', async ({ page }) => {
+    test.skip(!testPhone || !testPassword, 'Set E2E_TEST_PHONE and E2E_TEST_PASSWORD to run this test');
     await page.goto(base + '/');
     await page.getByRole('button', { name: /Masuk/i }).click();
-    await page.getByPlaceholder('+628').fill('+62882009759102');
-    await page.getByPlaceholder(/Minimal 6 karakter/i).fill('Vijay123');
+    await page.getByPlaceholder('+628').fill(testPhone);
+    await page.getByPlaceholder(/Minimal 6 karakter/i).fill(testPassword);
     await page.getByRole('button', { name: /Masuk ke Sistem/i }).click();
 
     // adjust selector for app's post-login element

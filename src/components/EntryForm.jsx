@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Loader2, Plus } from 'lucide-react';
 import { todayStr } from '../lib/formatters';
 
+const formatThousands = (digits) => (digits ? new Intl.NumberFormat('id-ID').format(Number(digits)) : '');
+
 export default function EntryForm({ tone, fields, onSubmit, submitLabel }) {
   const initial = {};
   fields.forEach((field) => {
@@ -52,6 +54,15 @@ export default function EntryForm({ tone, fields, onSubmit, submitLabel }) {
                 </option>
               ))}
             </select>
+          ) : field.type === 'currency' ? (
+            <input
+              type="text"
+              inputMode="numeric"
+              value={formatThousands(form[field.key])}
+              placeholder={field.placeholder}
+              onChange={(event) => set(field.key, event.target.value.replace(/\D/g, ''))}
+              className="w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
           ) : (
             <input
               type={field.type || 'text'}

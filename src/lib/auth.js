@@ -10,7 +10,7 @@ async function hashPassword(password) {
 }
 
 export async function dbSignUp({ fullName, phone, password, requested_unit_id = null, requested_unit_name = null, requested_unit_type = null }) {
-  const existing = await sbSelect('profiles', { query: `phone=eq.${encodeURIComponent(phone)}` });
+  const existing = await sbSelect('profiles', { query: `select=id&phone=eq.${encodeURIComponent(phone)}` });
   if (existing && existing.length) throw new Error('Phone already registered');
 
   const password_hash = await hashPassword(password);
@@ -23,7 +23,7 @@ export async function dbSignUp({ fullName, phone, password, requested_unit_id = 
     requested_unit_id,
     requested_unit_name,
     requested_unit_type,
-  }]);
+  }], { select: 'id,full_name,phone,role,unit_id,status,can_view_all,requested_unit_id,requested_unit_name,requested_unit_type' });
   const profile = rows?.[0] ?? null;
   if (!profile) throw new Error('Failed create profile');
 

@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { ArrowLeftRight, FileSpreadsheet, LayoutDashboard, RefreshCw, Users, Wallet, Warehouse, Wifi, WifiOff } from 'lucide-react';
 import AuthPanel from './components/AuthPanel';
 import Dashboard from './components/Dashboard';
 import GudangSection from './components/GudangSection';
-import ImportExportSection from './components/ImportExportSection';
 import KasUmumBumdes from './components/KasUmumBumdes';
 import LedgerSection from './components/LedgerSection';
 import OperatorDashboard from './components/OperatorDashboard';
@@ -19,6 +18,8 @@ import { formatRupiah } from './lib/formatters';
 import { dbSignIn, dbSignUp } from './lib/auth';
 import { subscribeGudangRealtime } from './lib/realtime';
 import { clearSession, loadSession, saveSession } from './lib/session';
+
+const ImportExportSection = lazy(() => import('./components/ImportExportSection'));
 
 const UNIT_DATA_TABLES = ['ledger_debit', 'ledger_kredit', 'gudang'];
 
@@ -636,7 +637,9 @@ export default function App() {
           )}
 
           {tab === 'importExport' && (!overviewOnly ? (
-            <ImportExportSection data={data} onImportReplace={replaceAllData} onReset={handleReset} computeRingkasan={computeRingkasan} profile={profile} selectedUnitId={selectedUnitId} currentUnitLabel={currentUnitLabel} session={session} />
+            <Suspense fallback={<div className="py-8 text-center text-sm text-stone-400">Memuat…</div>}>
+              <ImportExportSection data={data} onImportReplace={replaceAllData} onReset={handleReset} computeRingkasan={computeRingkasan} profile={profile} selectedUnitId={selectedUnitId} currentUnitLabel={currentUnitLabel} session={session} />
+            </Suspense>
           ) : (
             <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-6 text-sm text-stone-600">
               Pilih satu unit di header untuk impor / ekspor data.

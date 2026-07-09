@@ -85,7 +85,7 @@ export default function LedgerSection({
               submitLabel="Tambah Pemasukan"
               fields={[
                 { key: 'tanggal', label: 'Tanggal', type: 'date', default: new Date().toISOString().slice(0, 10) },
-                { key: 'jumlah', label: 'Jumlah (Rp)', type: 'number', step: 1000, placeholder: '0' },
+                { key: 'jumlah', label: 'Jumlah (Rp)', type: 'currency', placeholder: '0' },
                 { key: 'uraian', label: 'Uraian', span2: true, placeholder: 'Contoh: Setoran Toko' },
                 { key: 'sumber', label: debitLabel, type: 'select', options: debitOptions, span2: true },
               ]}
@@ -116,7 +116,7 @@ export default function LedgerSection({
               submitLabel="Tambah Pengeluaran"
               fields={[
                 { key: 'tanggal', label: 'Tanggal', type: 'date', default: new Date().toISOString().slice(0, 10) },
-                { key: 'jumlah', label: 'Jumlah (Rp)', type: 'number', step: 1000, placeholder: '0' },
+                { key: 'jumlah', label: 'Jumlah (Rp)', type: 'currency', placeholder: '0' },
                 { key: 'uraian', label: 'Uraian', span2: true, placeholder: 'Contoh: Beli ATK' },
                 { key: 'kategori', label: kreditLabel, type: 'select', options: kreditOptions, span2: true },
               ]}
