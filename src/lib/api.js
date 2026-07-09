@@ -68,8 +68,9 @@ export async function sbDeleteWhere(table, query, { accessToken } = {}) {
   if (!response.ok) throw new Error(`Gagal hapus dari ${table}`);
 }
 
-export async function sbPatch(table, id, patchBody, { accessToken } = {}) {
-  const response = await fetch(`${REST}/${table}?id=eq.${id}`, {
+export async function sbPatch(table, id, patchBody, { accessToken, select } = {}) {
+  const query = select ? `id=eq.${id}&select=${select}` : `id=eq.${id}`;
+  const response = await fetch(`${REST}/${table}?${query}`, {
     method: 'PATCH',
     headers: sbHeaders(accessToken, { Prefer: 'return=representation' }),
     body: JSON.stringify(patchBody),

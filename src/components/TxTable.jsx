@@ -1,6 +1,6 @@
 import { Trash2 } from 'lucide-react';
 
-export default function TxTable({ rows, columns, onDelete, emptyText }) {
+export default function TxTable({ rows, columns, onDelete, emptyText, renderExtraActions }) {
   if (!rows.length) {
     return <div className="rounded-xl border border-dashed border-stone-200 py-6 text-center text-sm italic text-stone-400">{emptyText}</div>;
   }
@@ -15,7 +15,7 @@ export default function TxTable({ rows, columns, onDelete, emptyText }) {
                 {column.label}
               </th>
             ))}
-            <th className="w-8" />
+            {(onDelete || renderExtraActions) && <th className="w-8" />}
           </tr>
         </thead>
         <tbody>
@@ -26,11 +26,16 @@ export default function TxTable({ rows, columns, onDelete, emptyText }) {
                   {column.render ? column.render(row) : row[column.key]}
                 </td>
               ))}
-              <td className="px-2 py-2 text-right flex items-center justify-end gap-2">
-                <button onClick={() => onDelete(row.id)} className="text-stone-300 transition-colors hover:text-rose-600" title="Hapus">
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </td>
+              {(onDelete || renderExtraActions) && (
+                <td className="px-2 py-2 text-right flex items-center justify-end gap-2">
+                  {renderExtraActions?.(row)}
+                  {onDelete && (
+                    <button onClick={() => onDelete(row.id)} className="text-stone-300 transition-colors hover:text-rose-600" title="Hapus">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

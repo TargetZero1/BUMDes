@@ -1,4 +1,3 @@
-import { BARANG_LIST } from './constants';
 import { sumBy } from './formatters';
 
 export function computeRingkasan(payload) {
@@ -8,19 +7,25 @@ export function computeRingkasan(payload) {
   };
   umum.bersih = umum.pemasukan - umum.pengeluaran;
 
-  const petelur = {
-    pemasukan: sumBy(payload.kasPetelur.debit, 'jumlah'),
-    pengeluaran: sumBy(payload.kasPetelur.kredit, 'jumlah'),
+  const unit = {
+    pemasukan: sumBy(payload.kasUnit.debit, 'jumlah'),
+    pengeluaran: sumBy(payload.kasUnit.kredit, 'jumlah'),
   };
-  petelur.bersih = petelur.pemasukan - petelur.pengeluaran;
+  unit.bersih = unit.pemasukan - unit.pengeluaran;
 
   const grand = {
-    pemasukan: umum.pemasukan + petelur.pemasukan,
-    pengeluaran: umum.pengeluaran + petelur.pengeluaran,
+    pemasukan: umum.pemasukan + unit.pemasukan,
+    pengeluaran: umum.pengeluaran + unit.pengeluaran,
   };
-  grand.bersih = umum.bersih + petelur.bersih;
+  grand.bersih = umum.bersih + unit.bersih;
 
-  return { umum, petelur, grand };
+  return { umum, unit, grand };
+}
+
+export function computeConsolidatedRingkasan(kasUmumDebit, kasUmumKredit, allUnitsDebit, allUnitsKredit) {
+  const pemasukan = sumBy(kasUmumDebit, 'jumlah') + sumBy(allUnitsDebit, 'jumlah');
+  const pengeluaran = sumBy(kasUmumKredit, 'jumlah') + sumBy(allUnitsKredit, 'jumlah');
+  return { pemasukan, pengeluaran, bersih: pemasukan - pengeluaran };
 }
 
 export function buildMonthlyData(data) {
@@ -36,18 +41,20 @@ export function buildMonthlyData(data) {
     map[sortKey][key] += amount;
   };
 
-  [...data.kasUmum.debit, ...data.kasPetelur.debit].forEach((entry) => addTo(entry.tanggal, 'pemasukan', entry.jumlah || 0));
-  [...data.kasUmum.kredit, ...data.kasPetelur.kredit].forEach((entry) => addTo(entry.tanggal, 'pengeluaran', entry.jumlah || 0));
+  [...data.kasUmum.debit, ...data.kasUnit.debit].forEach((entry) => addTo(entry.tanggal, 'pemasukan', entry.jumlah || 0));
+  [...data.kasUmum.kredit, ...data.kasUnit.kredit].forEach((entry) => addTo(entry.tanggal, 'pengeluaran', entry.jumlah || 0));
 
   return Object.values(map).sort((a, b) => a.sortKey.localeCompare(b.sortKey));
 }
 
 export function buildGudangAlerts(data) {
   if (!data) return [];
-  return BARANG_LIST.map((barang) => {
-    const items = data.gudang.filter((entry) => entry.namaBarang === barang);
-    if (!items.length) return null;
-    const saldo = sumBy(items, 'masuk') - sumBy(items, 'keluar');
-    return saldo <= 2 ? { barang, saldo, satuan: items[0]?.satuan || '' } : null;
-  }).filter(Boolean);
+  const namaBarangList = [...new Set(data.gudang.map((entry) => entry.namaBarang).filter(Boolean))];
+  return namaBarangList
+    .map((barang) => {
+      const items = data.gudang.filter((entry) => entry.namaBarang === barang);
+      const saldo = sumBy(items, 'masuk') - sumBy(items, 'keluar');
+      return saldo <= 2 ? { barang, saldo, satuan: items[0]?.satuan || '' } : null;
+    })
+    .filter(Boolean);
 }

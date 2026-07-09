@@ -17,7 +17,7 @@ export default function ImportExportSection({ data, onImportReplace, onReset, co
   const [loadingHistory, setLoadingHistory] = useState(false);
 
   const canExport = profile?.role !== 'viewer';
-  const isSuperAdmin = profile?.role === 'super_admin';
+  const isSuperAdmin = profile?.role === 'super_admin' || profile?.role === 'operator';
 
   // Load import history
   useEffect(() => {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Store } from 'lucide-react';
 import { sbSelect } from '../lib/api';
 import { formatRupiah } from '../lib/formatters';
 
@@ -24,13 +25,11 @@ export default function OperatorDashboard({ session }) {
           <title>Laporan ${unit.unit_name}</title>
         </head>
         <body>
-          <h2>${unit.unit_name} — Ringkasan</h2>
+          <h2>${unit.unit_name}${unit.unit_type ? ` (${unit.unit_type})` : ''} — Ringkasan</h2>
           <table border="1" cellpadding="6" cellspacing="0">
             <tr><th>Item</th><th>Nilai</th></tr>
-            <tr><td>Pemasukan Umum</td><td>${formatRupiah(unit.pemasukan_umum)}</td></tr>
-            <tr><td>Pengeluaran Umum</td><td>${formatRupiah(unit.pengeluaran_umum)}</td></tr>
-            <tr><td>Pemasukan Petelur</td><td>${formatRupiah(unit.pemasukan_petelur)}</td></tr>
-            <tr><td>Pengeluaran Petelur</td><td>${formatRupiah(unit.pengeluaran_petelur)}</td></tr>
+            <tr><td>Pemasukan Kas Unit</td><td>${formatRupiah(unit.pemasukan_unit)}</td></tr>
+            <tr><td>Pengeluaran Kas Unit</td><td>${formatRupiah(unit.pengeluaran_unit)}</td></tr>
             <tr><td>Saldo Gudang</td><td>${formatRupiah(unit.saldo_gudang)}</td></tr>
           </table>
         </body>
@@ -47,7 +46,7 @@ export default function OperatorDashboard({ session }) {
   return (
     <div>
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-stone-800">Operator Dashboard</h2>
+        <h2 className="text-2xl font-bold text-stone-800">Overview Semua Unit</h2>
         <p className="text-sm text-stone-500">Ringkasan per unit — read-only</p>
       </div>
 
@@ -59,14 +58,20 @@ export default function OperatorDashboard({ session }) {
         <div className="space-y-4">
           {rows.map((unit) => (
             <div key={unit.unit_id} className="rounded-2xl border bg-white p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-semibold text-stone-800">{unit.unit_name}</div>
-                  <div className="text-xs text-stone-500">Terakhir: {unit.last_updated ? new Date(unit.last_updated).toLocaleString() : '-'}</div>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  {unit.is_toko && <Store className="h-4 w-4 text-amber-600" title="Toko Bumdes" />}
+                  <div>
+                    <div className="font-semibold text-stone-800">
+                      {unit.unit_name}
+                      {unit.unit_type && <span className="ml-2 rounded-full bg-stone-100 px-2 py-0.5 text-xs font-normal text-stone-500">{unit.unit_type}</span>}
+                    </div>
+                    <div className="text-xs text-stone-500">Terakhir: {unit.last_updated ? new Date(unit.last_updated).toLocaleString() : '-'}</div>
+                  </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm">Bersih: {formatRupiah((unit.pemasukan_umum || 0) + (unit.pemasukan_petelur || 0) - ((unit.pengeluaran_umum || 0) + (unit.pengeluaran_petelur || 0)) )}</div>
-                  <button onClick={() => exportPDF(unit)} className="mt-2 inline-block rounded bg-emerald-700 px-3 py-1 text-xs text-white">Export PDF</button>
+                  <div className="text-sm">Bersih: {formatRupiah((unit.pemasukan_unit || 0) - (unit.pengeluaran_unit || 0))}</div>
+                  <button onClick={() => exportPDF(unit)} className="mt-2 inline-block rounded bg-emerald-700 px-3 py-1 text-xs text-white hover:bg-emerald-800">Export PDF</button>
                 </div>
               </div>
             </div>

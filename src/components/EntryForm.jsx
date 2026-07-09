@@ -30,7 +30,7 @@ export default function EntryForm({ tone, fields, onSubmit, submitLabel }) {
     }
   };
 
-  const toneButton = tone === 'debit' ? 'bg-emerald-700 hover:bg-emerald-800' : 'bg-rose-700 hover:bg-rose-800';
+  const toneButton = tone === 'debit' ? 'bg-emerald-700 hover:bg-emerald-800' : tone === 'kredit' ? 'bg-rose-700 hover:bg-rose-800' : 'bg-amber-600 hover:bg-amber-700';
 
   return (
     <form onSubmit={handleSubmit} className="mb-3 grid grid-cols-2 gap-2">
@@ -59,9 +59,17 @@ export default function EntryForm({ tone, fields, onSubmit, submitLabel }) {
               min={field.type === 'number' ? 0 : undefined}
               step={field.type === 'number' ? field.step || 1 : undefined}
               placeholder={field.placeholder}
+              list={field.listId}
               onChange={(event) => set(field.key, event.target.value)}
               className="w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
+          )}
+          {field.listId && field.listOptions && (
+            <datalist id={field.listId}>
+              {field.listOptions.map((option) => (
+                <option key={option} value={option} />
+              ))}
+            </datalist>
           )}
         </div>
       ))}

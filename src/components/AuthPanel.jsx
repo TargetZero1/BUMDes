@@ -8,6 +8,7 @@ export default function AuthPanel({ units, busy, message, mode, onModeChange, on
     password: '',
     unitId: '',
     customUnitName: '',
+    customUnitType: '',
   });
 
   const unitOptions = useMemo(() => units ?? [], [units]);
@@ -24,6 +25,7 @@ export default function AuthPanel({ units, busy, message, mode, onModeChange, on
       password: form.password,
       unitId: form.unitId || null,
       customUnitName: form.customUnitName?.trim() || null,
+      customUnitType: form.customUnitType?.trim() || null,
     });
   };
 
@@ -43,7 +45,7 @@ export default function AuthPanel({ units, busy, message, mode, onModeChange, on
 
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
             {[
-              ['Super Admin', 'Lihat semua unit dan approve user baru'],
+              ['Operator', 'Kelola Kas Umum BUMDes, kirim dana ke unit, approve unit baru'],
               ['Unit Admin', 'Kelola kas dan gudang unit sendiri'],
               ['Staf', 'Input data sesuai unit yang ditugaskan'],
               ['Viewer', 'Hanya lihat laporan tanpa edit'],
@@ -129,19 +131,30 @@ export default function AuthPanel({ units, busy, message, mode, onModeChange, on
                   <option value="other">Other (Buat unit baru)</option>
                 </select>
                 {form.unitId === 'other' && (
-                  <div className="mt-3">
-                    <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">Nama Unit Baru</label>
-                    <input
-                      value={form.customUnitName}
-                      onChange={(event) => setForm((current) => ({ ...current, customUnitName: event.target.value }))}
-                      className="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none ring-0 focus:border-emerald-500"
-                      placeholder="Contoh: Bumdes Mulyoarjo"
-                      required
-                    />
+                  <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">Nama Unit Baru</label>
+                      <input
+                        value={form.customUnitName}
+                        onChange={(event) => setForm((current) => ({ ...current, customUnitName: event.target.value }))}
+                        className="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none ring-0 focus:border-emerald-500"
+                        placeholder="Contoh: Unit Perikanan"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">Tipe Unit</label>
+                      <input
+                        value={form.customUnitType}
+                        onChange={(event) => setForm((current) => ({ ...current, customUnitType: event.target.value }))}
+                        className="w-full rounded-2xl border border-stone-300 px-4 py-3 outline-none ring-0 focus:border-emerald-500"
+                        placeholder="Contoh: Perikanan"
+                      />
+                    </div>
                   </div>
                 )}
                 <p className="mt-2 text-xs text-stone-500">
-                  Jika ini akun pertama, sistem akan otomatis menjadikannya Super Admin.
+                  Pendaftaran unit baru menunggu konfirmasi Operator sebelum bisa dipakai.
                 </p>
               </div>
             )}

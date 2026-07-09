@@ -1,7 +1,7 @@
 export function emptyData() {
   return {
     kasUmum: { debit: [], kredit: [] },
-    kasPetelur: { debit: [], kredit: [] },
+    kasUnit: { debit: [], kredit: [] },
     gudang: [],
   };
 }
@@ -16,6 +16,7 @@ export function rowToEntry(row) {
     jumlah: Number(row.jumlah) || 0,
     unitId: row.unit_id ?? null,
     createdBy: row.created_by ?? null,
+    pengeluaranUnitId: row.pengeluaran_unit_id ?? null,
   };
 }
 
@@ -28,6 +29,10 @@ export function rowToGudang(row) {
     uraian: row.uraian,
     masuk: Number(row.masuk) || 0,
     keluar: Number(row.keluar) || 0,
+    kategori: row.kategori ?? null,
+    hargaBeli: row.harga_beli != null ? Number(row.harga_beli) : null,
+    hargaJual: row.harga_jual != null ? Number(row.harga_jual) : null,
+    kode: row.kode ?? null,
     unitId: row.unit_id ?? null,
     createdBy: row.created_by ?? null,
   };

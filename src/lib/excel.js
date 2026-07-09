@@ -71,7 +71,7 @@ export function validateImportedData(workbook, expectedSheets = null) {
   const warnings = [];
 
   // Required logical sheets (accept small name variations)
-  const requiredLogical = ['kasumumdebit', 'kasumumkredit', 'kaspetelurdebit', 'kaspetelurkredit', 'gudang'];
+  const requiredLogical = ['kasumumdebit', 'kasumumkredit', 'kasunitdebit', 'kasunitkredit', 'gudang'];
   const normalizedSheetNames = sheetNames.map((s) => ({ raw: s, norm: normalizeKey(s) }));
   const missing = requiredLogical.filter((logical) => !normalizedSheetNames.some((s) => s.norm === logical));
   if (missing.length > 0) {
@@ -122,7 +122,18 @@ export function buildWorkbook(payload, computeRingkasan, profile = null, selecte
   const workbook = XLSX.utils.book_new();
   const mapDebit = (items) => items.map((entry) => ({ Tanggal: entry.tanggal, Uraian: entry.uraian, Sumber: entry.sumber, 'Jumlah (Rp)': entry.jumlah }));
   const mapKredit = (items) => items.map((entry) => ({ Tanggal: entry.tanggal, Uraian: entry.uraian, Kategori: entry.kategori, 'Jumlah (Rp)': entry.jumlah }));
-  const mapGudang = (items) => items.map((entry) => ({ Tanggal: entry.tanggal, 'Nama Barang': entry.namaBarang, Satuan: entry.satuan, Uraian: entry.uraian, 'Masuk (+)': entry.masuk || 0, 'Keluar (-)': entry.keluar || 0 }));
+  const mapGudang = (items) => items.map((entry) => ({
+    Tanggal: entry.tanggal,
+    'Nama Barang': entry.namaBarang,
+    Satuan: entry.satuan,
+    Uraian: entry.uraian,
+    'Masuk (+)': entry.masuk || 0,
+    'Keluar (-)': entry.keluar || 0,
+    Kategori: entry.kategori || '',
+    'Harga Beli': entry.hargaBeli ?? '',
+    'Harga Jual': entry.hargaJual ?? '',
+    Kode: entry.kode || '',
+  }));
 
   // Add metadata sheet
   const metadataSheet = buildMetadataSheet(profile, selectedUnitId, unitLabel, new Date().toLocaleString('id-ID'));
@@ -131,15 +142,15 @@ export function buildWorkbook(payload, computeRingkasan, profile = null, selecte
   // Add data sheets
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(mapDebit(payload.kasUmum.debit)), 'KasUmum_Debit');
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(mapKredit(payload.kasUmum.kredit)), 'KasUmum_Kredit');
-  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(mapDebit(payload.kasPetelur.debit)), 'KasPetelur_Debit');
-  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(mapKredit(payload.kasPetelur.kredit)), 'KasPetelur_Kredit');
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(mapDebit(payload.kasUnit.debit)), 'KasUnit_Debit');
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(mapKredit(payload.kasUnit.kredit)), 'KasUnit_Kredit');
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(mapGudang(payload.gudang)), 'Gudang');
 
   // Add summary/ringkasan sheet
   const ringkasan = computeRingkasan(payload);
   const summaryRows = [
     { Unit: 'Kas Umum BUMDes', 'Total Pemasukan': ringkasan.umum.pemasukan, 'Total Pengeluaran': ringkasan.umum.pengeluaran, 'Keuntungan Bersih': ringkasan.umum.bersih },
-    { Unit: 'Kas RKU Unit Petelur', 'Total Pemasukan': ringkasan.petelur.pemasukan, 'Total Pengeluaran': ringkasan.petelur.pengeluaran, 'Keuntungan Bersih': ringkasan.petelur.bersih },
+    { Unit: 'Kas Unit', 'Total Pemasukan': ringkasan.unit.pemasukan, 'Total Pengeluaran': ringkasan.unit.pengeluaran, 'Keuntungan Bersih': ringkasan.unit.bersih },
     { Unit: 'TOTAL GABUNGAN', 'Total Pemasukan': ringkasan.grand.pemasukan, 'Total Pengeluaran': ringkasan.grand.pengeluaran, 'Keuntungan Bersih': ringkasan.grand.bersih },
   ];
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(summaryRows), 'Ringkasan');
@@ -203,12 +214,16 @@ export function parseImportedWorkbook(arrayBuffer, currentData = null) {
     uraian: String(extractField(row, ['Uraian', 'Description', 'Keterangan']) || '').trim(),
     masuk: Number(extractField(row, ['Masuk (+)', 'Masuk', 'In', 'Qty In']) || 0) || 0,
     keluar: Number(extractField(row, ['Keluar (-)', 'Keluar', 'Out', 'Qty Out']) || 0) || 0,
+    kategori: String(extractField(row, ['Kategori', 'Category']) || '').trim() || undefined,
+    hargaBeli: extractField(row, ['Harga Beli', 'Buy Price']) !== undefined && extractField(row, ['Harga Beli', 'Buy Price']) !== '' ? Number(extractField(row, ['Harga Beli', 'Buy Price'])) : undefined,
+    hargaJual: extractField(row, ['Harga Jual', 'Sell Price']) !== undefined && extractField(row, ['Harga Jual', 'Sell Price']) !== '' ? Number(extractField(row, ['Harga Jual', 'Sell Price'])) : undefined,
+    kode: String(extractField(row, ['Kode', 'SKU', 'Code']) || '').trim() || undefined,
   })).filter((e) => e.tanggal && e.namaBarang);
 
   const debitUmum = toDebit(sheetRows('KasUmum_Debit'));
   const kreditUmum = toKredit(sheetRows('KasUmum_Kredit'));
-  const debitPetelur = toDebit(sheetRows('KasPetelur_Debit'));
-  const kreditPetelur = toKredit(sheetRows('KasPetelur_Kredit'));
+  const debitUnit = toDebit(sheetRows('KasUnit_Debit'));
+  const kreditUnit = toKredit(sheetRows('KasUnit_Kredit'));
   const gudangRows = toGudang(sheetRows('Gudang'));
 
   // Check for duplicates
@@ -216,21 +231,21 @@ export function parseImportedWorkbook(arrayBuffer, currentData = null) {
   if (currentData) {
     const dupDebitUmum = detectDuplicates(debitUmum, currentData.kasUmum?.debit);
     const dupKreditUmum = detectDuplicates(kreditUmum, currentData.kasUmum?.kredit);
-    const dupDebitPetelur = detectDuplicates(debitPetelur, currentData.kasPetelur?.debit);
-    const dupKreditPetelur = detectDuplicates(kreditPetelur, currentData.kasPetelur?.kredit);
+    const dupDebitUnit = detectDuplicates(debitUnit, currentData.kasUnit?.debit);
+    const dupKreditUnit = detectDuplicates(kreditUnit, currentData.kasUnit?.kredit);
     if (dupDebitUmum.length > 0) duplicateWarnings.push(`${dupDebitUmum.length} duplikat di Kas Umum Debit`);
     if (dupKreditUmum.length > 0) duplicateWarnings.push(`${dupKreditUmum.length} duplikat di Kas Umum Kredit`);
-    if (dupDebitPetelur.length > 0) duplicateWarnings.push(`${dupDebitPetelur.length} duplikat di Kas Petelur Debit`);
-    if (dupKreditPetelur.length > 0) duplicateWarnings.push(`${dupKreditPetelur.length} duplikat di Kas Petelur Kredit`);
+    if (dupDebitUnit.length > 0) duplicateWarnings.push(`${dupDebitUnit.length} duplikat di Kas Unit Debit`);
+    if (dupKreditUnit.length > 0) duplicateWarnings.push(`${dupKreditUnit.length} duplikat di Kas Unit Kredit`);
   }
 
   const next = {
     kasUmum: { debit: debitUmum, kredit: kreditUmum },
-    kasPetelur: { debit: debitPetelur, kredit: kreditPetelur },
+    kasUnit: { debit: debitUnit, kredit: kreditUnit },
     gudang: gudangRows,
   };
 
-  const totalRows = debitUmum.length + kreditUmum.length + debitPetelur.length + kreditPetelur.length + gudangRows.length;
+  const totalRows = debitUmum.length + kreditUmum.length + debitUnit.length + kreditUnit.length + gudangRows.length;
   return { next, totalRows, warnings: [...validation.warnings, ...duplicateWarnings] };
 }
 
