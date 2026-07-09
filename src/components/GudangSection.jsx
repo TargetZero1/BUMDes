@@ -16,8 +16,10 @@ export default function GudangSection({ entries, onAdd, onDelete, isToko, unitLa
         const masuk = sumBy(items, 'masuk');
         const keluar = sumBy(items, 'keluar');
         const satuan = items[0]?.satuan || '-';
+        const harga = items.slice().reverse().find((item) => item.hargaBeli)?.hargaBeli || 0;
         const hargaJual = items.slice().reverse().find((item) => item.hargaJual)?.hargaJual;
-        return { barang, satuan, masuk, keluar, saldo: masuk - keluar, hargaJual };
+        const saldo = masuk - keluar;
+        return { barang, satuan, masuk, keluar, saldo, harga, hargaJual, nilaiStok: saldo * harga };
       })
       .filter((item) => item.masuk || item.keluar);
   }, [entries]);
@@ -29,13 +31,13 @@ export default function GudangSection({ entries, onAdd, onDelete, isToko, unitLa
     { key: 'uraian', label: 'Uraian', span2: true, placeholder: 'Contoh: Pembelian dari toko pakan' },
     { key: 'masuk', label: 'Masuk (+)', type: 'number', default: 0 },
     { key: 'keluar', label: 'Keluar (-)', type: 'number', default: 0 },
+    { key: 'hargaBeli', label: isToko ? 'Harga Beli' : 'Harga per Satuan (Rp)', type: 'number', default: 0, span2: !isToko },
   ];
 
   if (isToko) {
     fields.push(
       { key: 'kategori', label: 'Kategori', type: 'select', options: GUDANG_KATEGORI_LIST },
       { key: 'kode', label: 'Kode/SKU', placeholder: 'Opsional' },
-      { key: 'hargaBeli', label: 'Harga Beli', type: 'number', default: 0 },
       { key: 'hargaJual', label: 'Harga Jual', type: 'number', default: 0 },
     );
   }
@@ -46,6 +48,7 @@ export default function GudangSection({ entries, onAdd, onDelete, isToko, unitLa
     { key: 'uraian', label: 'Uraian' },
     { key: 'masuk', label: 'Masuk', render: (row) => (row.masuk ? `+${formatQty(row.masuk)} ${row.satuan}` : '-') },
     { key: 'keluar', label: 'Keluar', render: (row) => (row.keluar ? `-${formatQty(row.keluar)} ${row.satuan}` : '-') },
+    { key: 'hargaBeli', label: 'Harga', render: (row) => (row.hargaBeli ? formatRupiah(row.hargaBeli) : '-') },
   ];
 
   if (isToko) {
@@ -55,13 +58,25 @@ export default function GudangSection({ entries, onAdd, onDelete, isToko, unitLa
     );
   }
 
+  const totalNilaiStok = sumBy(rekap, 'nilaiStok');
+
   return (
     <div>
-      <div className="mb-5">
-        <h2 className="text-2xl font-bold text-stone-800" style={{ fontFamily: "'Lora', serif" }}>
-          Buku Gudang
-        </h2>
-        <p className="text-sm text-stone-500">Stok barang {unitLabel ? `— ${unitLabel}` : ''}</p>
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-bold text-stone-800" style={{ fontFamily: "'Lora', serif" }}>
+            Buku Gudang
+          </h2>
+          <p className="text-sm text-stone-500">Stok barang {unitLabel ? `— ${unitLabel}` : ''}</p>
+        </div>
+        {rekap.length > 0 && (
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-right">
+            <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-emerald-700">Total Nilai Stok</p>
+            <p className="text-lg font-bold text-emerald-800" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              {formatRupiah(totalNilaiStok)}
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -76,7 +91,7 @@ export default function GudangSection({ entries, onAdd, onDelete, isToko, unitLa
                 ...values,
                 masuk: Number(values.masuk) || 0,
                 keluar: Number(values.keluar) || 0,
-                hargaBeli: isToko ? Number(values.hargaBeli) || 0 : undefined,
+                hargaBeli: Number(values.hargaBeli) || 0,
                 hargaJual: isToko ? Number(values.hargaJual) || 0 : undefined,
                 jumlah: undefined,
               })
@@ -114,6 +129,12 @@ export default function GudangSection({ entries, onAdd, onDelete, isToko, unitLa
                     -{formatQty(item.keluar)} {item.satuan}
                   </span>
                 </div>
+                {item.harga ? (
+                  <div className="mb-2 flex justify-between text-xs text-stone-500">
+                    <span>Harga/Satuan</span>
+                    <span>{formatRupiah(item.harga)}</span>
+                  </div>
+                ) : null}
                 {isToko && item.hargaJual ? (
                   <div className="mb-2 flex justify-between text-xs text-stone-500">
                     <span>Harga Jual</span>
@@ -126,6 +147,12 @@ export default function GudangSection({ entries, onAdd, onDelete, isToko, unitLa
                     {formatQty(item.saldo)} {item.satuan}
                   </span>
                 </div>
+                {item.harga ? (
+                  <div className="mt-1 flex justify-between text-xs font-semibold text-amber-700">
+                    <span>Nilai Stok</span>
+                    <span>{formatRupiah(item.nilaiStok)}</span>
+                  </div>
+                ) : null}
               </div>
             ))}
           </div>

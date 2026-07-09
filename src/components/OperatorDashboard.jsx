@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Store } from 'lucide-react';
+import { FileDown, Store } from 'lucide-react';
 import { sbSelect } from '../lib/api';
 import { formatRupiah } from '../lib/formatters';
+import { generateUnitOverviewPDF } from '../lib/invoice';
 
 export default function OperatorDashboard({ session }) {
   const [rows, setRows] = useState([]);
@@ -19,28 +20,7 @@ export default function OperatorDashboard({ session }) {
   }, [session]);
 
   const exportPDF = (unit) => {
-    const html = `
-      <html>
-        <head>
-          <title>Laporan ${unit.unit_name}</title>
-        </head>
-        <body>
-          <h2>${unit.unit_name}${unit.unit_type ? ` (${unit.unit_type})` : ''} — Ringkasan</h2>
-          <table border="1" cellpadding="6" cellspacing="0">
-            <tr><th>Item</th><th>Nilai</th></tr>
-            <tr><td>Pemasukan Kas Unit</td><td>${formatRupiah(unit.pemasukan_unit)}</td></tr>
-            <tr><td>Pengeluaran Kas Unit</td><td>${formatRupiah(unit.pengeluaran_unit)}</td></tr>
-            <tr><td>Saldo Gudang</td><td>${formatRupiah(unit.saldo_gudang)}</td></tr>
-          </table>
-        </body>
-      </html>
-    `;
-    const w = window.open('', '_blank');
-    if (!w) return;
-    w.document.open();
-    w.document.write(html);
-    w.document.close();
-    w.print();
+    generateUnitOverviewPDF(unit, session?.user?.full_name || 'Operator BUMDes');
   };
 
   return (
@@ -66,13 +46,15 @@ export default function OperatorDashboard({ session }) {
                       {unit.unit_name}
                       {unit.unit_type && <span className="ml-2 rounded-full bg-stone-100 px-2 py-0.5 text-xs font-normal text-stone-500">{unit.unit_type}</span>}
                     </div>
-                    <div className="text-xs text-stone-500">Terakhir: {unit.last_updated ? new Date(unit.last_updated).toLocaleString() : '-'}</div>
+                    <div className="text-xs text-stone-500">
+                      Saldo Kas: {formatRupiah((unit.pemasukan_unit || 0) - (unit.pengeluaran_unit || 0))} • Nilai Stok: {formatRupiah(unit.nilai_gudang)}
+                    </div>
+                    <div className="text-xs text-stone-400">Terakhir: {unit.last_updated ? new Date(unit.last_updated).toLocaleString() : '-'}</div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm">Bersih: {formatRupiah((unit.pemasukan_unit || 0) - (unit.pengeluaran_unit || 0))}</div>
-                  <button onClick={() => exportPDF(unit)} className="mt-2 inline-block rounded bg-emerald-700 px-3 py-1 text-xs text-white hover:bg-emerald-800">Export PDF</button>
-                </div>
+                <button onClick={() => exportPDF(unit)} className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-800">
+                  <FileDown className="h-3.5 w-3.5" /> Export PDF
+                </button>
               </div>
             </div>
           ))}

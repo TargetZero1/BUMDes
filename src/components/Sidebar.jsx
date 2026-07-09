@@ -24,9 +24,7 @@ export default function Sidebar({ navGroups, tab, onTabChange, profile, navOpen,
   const sidebarBody = (onSelect) => (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-3 px-4 py-5">
-        <div className="scale-75">
-          <EmblemBadge />
-        </div>
+        <EmblemBadge className="h-16 w-16" />
         <div className="min-w-0">
           <p className="truncate text-sm font-bold text-white" style={{ fontFamily: "'Lora', serif" }}>
             BUMDes Mulyoarjo

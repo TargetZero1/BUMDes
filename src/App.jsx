@@ -18,6 +18,7 @@ import { emptyData, rowToEntry, rowToGudang } from './lib/data';
 import { formatRupiah } from './lib/formatters';
 import { dbSignIn, dbSignUp } from './lib/auth';
 import { subscribeGudangRealtime } from './lib/realtime';
+import { clearSession, loadSession, saveSession } from './lib/session';
 
 const UNIT_DATA_TABLES = ['ledger_debit', 'ledger_kredit', 'gudang'];
 
@@ -76,7 +77,7 @@ const PAGE_TITLES = {
 };
 
 export default function App() {
-  const [session, setSession] = useState(null);
+  const [session, setSession] = useState(() => loadSession());
   const [authReady, setAuthReady] = useState(false);
   const [authBusy, setAuthBusy] = useState(false);
   const [authMode, setAuthMode] = useState('login');
@@ -256,6 +257,7 @@ export default function App() {
     try {
       const sess = await dbSignIn({ phone, password });
       setSession(sess);
+      saveSession(sess);
       setAuthBusy(false);
       return;
     } catch (err) {
@@ -278,6 +280,7 @@ export default function App() {
         requested_unit_type: unitId === 'other' ? customUnitType : null,
       });
       setSession(sess);
+      saveSession(sess);
       setAuthBusy(false);
       setAuthMessage({ type: 'success', text: 'Pendaftaran berhasil. Menunggu konfirmasi Operator.' });
     } catch (err) {
@@ -287,6 +290,7 @@ export default function App() {
   };
 
   const handleLogout = async () => {
+    clearSession();
     setSession(null);
     setProfile(null);
     setData(null);
@@ -489,16 +493,16 @@ export default function App() {
         />
       )}
 
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 border-b border-stone-200 bg-white/95 backdrop-blur">
           <div className="flex items-center gap-3 px-4 py-3 pl-14 lg:pl-6">
             <div className="min-w-0 flex-1">
               <h1 className="truncate text-lg font-bold text-stone-800" style={{ fontFamily: "'Lora', serif" }}>
                 {PAGE_TITLES[tab] || 'Dashboard'}
               </h1>
-              <div className="flex items-center gap-1.5 text-xs text-stone-500">
-                {dbOk ? <Wifi className="h-3.5 w-3.5 text-emerald-600" /> : <WifiOff className="h-3.5 w-3.5 text-rose-600" />}
-                <span>{dbOk ? `Tersambung ke database • ${currentUnitLabel}` : 'Gagal tersambung -- data kosong sementara'}</span>
+              <div className="flex min-w-0 items-center gap-1.5 text-xs text-stone-500">
+                {dbOk ? <Wifi className="h-3.5 w-3.5 shrink-0 text-emerald-600" /> : <WifiOff className="h-3.5 w-3.5 shrink-0 text-rose-600" />}
+                <span className="truncate">{dbOk ? `Tersambung ke database • ${currentUnitLabel}` : 'Gagal tersambung -- data kosong sementara'}</span>
               </div>
             </div>
 

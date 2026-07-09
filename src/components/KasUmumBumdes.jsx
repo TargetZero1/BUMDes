@@ -104,9 +104,9 @@ export default function KasUmumBumdes({ units, kasUmumEntries, allUnitsLedger, o
 
       <div className="mb-6 rounded-2xl border border-stone-200 bg-white p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Landmark className="h-4 w-4 text-emerald-700" />
-            <h3 className="font-semibold text-stone-700">Semua Transaksi -- Kas Pusat + Seluruh Unit</h3>
+          <div className="flex min-w-0 items-center gap-2">
+            <Landmark className="h-4 w-4 shrink-0 text-emerald-700" />
+            <h3 className="min-w-0 font-semibold text-stone-700">Semua Transaksi -- Kas Pusat + Seluruh Unit</h3>
           </div>
           <div className="flex flex-wrap gap-2">
             <select

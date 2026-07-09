@@ -33,9 +33,9 @@ export default function EntryForm({ tone, fields, onSubmit, submitLabel }) {
   const toneButton = tone === 'debit' ? 'bg-emerald-700 hover:bg-emerald-800' : tone === 'kredit' ? 'bg-rose-700 hover:bg-rose-800' : 'bg-amber-600 hover:bg-amber-700';
 
   return (
-    <form onSubmit={handleSubmit} className="mb-3 grid grid-cols-2 gap-2">
+    <form onSubmit={handleSubmit} className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
       {fields.map((field) => (
-        <div key={field.key} className={field.span2 ? 'col-span-2' : ''}>
+        <div key={field.key} className={field.span2 ? 'sm:col-span-2' : ''}>
           <label className="mb-1 block text-xs font-medium text-stone-500">{field.label}</label>
           {field.type === 'select' ? (
             <select
@@ -76,7 +76,7 @@ export default function EntryForm({ tone, fields, onSubmit, submitLabel }) {
       <button
         type="submit"
         disabled={busy}
-        className={`col-span-2 flex items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-semibold text-white transition-colors disabled:opacity-60 ${toneButton}`}
+        className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-semibold text-white transition-colors disabled:opacity-60 sm:col-span-2 ${toneButton}`}
       >
         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} {submitLabel}
       </button>
