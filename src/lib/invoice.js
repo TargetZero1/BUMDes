@@ -64,11 +64,15 @@ async function getWatermarkDataUrl() {
 function drawWatermark(doc, watermarkDataUrl) {
   if (!watermarkDataUrl) return;
   const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
   const size = 190;
+  // Anchored near the table/content block rather than the full-page vertical
+  // center -- the footer is pinned close to the bottom of the page, so a
+  // page-centered watermark ends up sitting in the empty gap below the
+  // content instead of behind it.
+  const centerY = 300;
   doc.saveGraphicsState();
   doc.setGState(new doc.GState({ opacity: 0.07 }));
-  doc.addImage(watermarkDataUrl, 'PNG', (pageWidth - size) / 2, (pageHeight - size) / 2, size, size);
+  doc.addImage(watermarkDataUrl, 'PNG', (pageWidth - size) / 2, centerY - size / 2, size, size);
   doc.restoreGraphicsState();
 }
 

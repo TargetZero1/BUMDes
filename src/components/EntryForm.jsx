@@ -3,6 +3,7 @@ import { Loader2, Plus } from 'lucide-react';
 import { todayStr } from '../lib/formatters';
 
 const formatThousands = (digits) => (digits ? new Intl.NumberFormat('id-ID').format(Number(digits)) : '');
+const OTHER_LABELS = new Set(['Lain-lain', 'Lainnya']);
 
 export default function EntryForm({ tone, fields, onSubmit, submitLabel }) {
   const initial = {};
@@ -23,9 +24,16 @@ export default function EntryForm({ tone, fields, onSubmit, submitLabel }) {
     if (uraianField && !form.uraian.trim()) return;
     if (jumlahField && (!form.jumlah || Number(form.jumlah) <= 0)) return;
 
+    const resolved = { ...form };
+    fields.forEach((field) => {
+      if (field.type === 'select' && OTHER_LABELS.has(form[field.key])) {
+        resolved[field.key] = (form[`${field.key}Other`] || '').trim();
+      }
+    });
+
     setBusy(true);
     try {
-      await onSubmit({ ...form, jumlah: form.jumlah ? Number(form.jumlah) : undefined });
+      await onSubmit({ ...resolved, jumlah: resolved.jumlah ? Number(resolved.jumlah) : undefined });
       setForm({ ...initial, tanggal: form.tanggal || todayStr() });
     } finally {
       setBusy(false);
@@ -40,20 +48,32 @@ export default function EntryForm({ tone, fields, onSubmit, submitLabel }) {
         <div key={field.key} className={field.span2 ? 'sm:col-span-2' : ''}>
           <label className="mb-1 block text-xs font-medium text-stone-500">{field.label}</label>
           {field.type === 'select' ? (
-            <select
-              value={form[field.key]}
-              onChange={(event) => set(field.key, event.target.value)}
-              className="w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            >
-              <option value="" disabled>
-                Pilih...
-              </option>
-              {field.options.map((option) => (
-                <option key={option} value={option}>
-                  {option}
+            <>
+              <select
+                value={form[field.key]}
+                onChange={(event) => set(field.key, event.target.value)}
+                className="w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="" disabled>
+                  Pilih...
                 </option>
-              ))}
-            </select>
+                {field.options.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              {OTHER_LABELS.has(form[field.key]) && (
+                <input
+                  type="text"
+                  value={form[`${field.key}Other`] || ''}
+                  onChange={(event) => set(`${field.key}Other`, event.target.value)}
+                  placeholder={`Tulis ${field.label.toLowerCase()} lainnya`}
+                  required
+                  className="mt-2 w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              )}
+            </>
           ) : field.type === 'currency' ? (
             <input
               type="text"
