@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ArrowRight, Lock, LogIn, UserPlus } from 'lucide-react';
 import EmblemBadge from './EmblemBadge';
+import ForgotPasswordModal from './ForgotPasswordModal';
 
 export default function AuthPanel({ units, busy, message, mode, onModeChange, onLogin, onSignup }) {
   const [form, setForm] = useState({
@@ -11,6 +12,7 @@ export default function AuthPanel({ units, busy, message, mode, onModeChange, on
     customUnitName: '',
     customUnitType: '',
   });
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
   const unitOptions = useMemo(() => (units ?? []).filter((unit) => unit.code !== 'pusat'), [units]);
 
@@ -106,6 +108,15 @@ export default function AuthPanel({ units, busy, message, mode, onModeChange, on
                 placeholder="Minimal 6 karakter"
                 required
               />
+              {mode === 'login' && (
+                <button
+                  type="button"
+                  onClick={() => setForgotPasswordOpen(true)}
+                  className="mt-1.5 text-xs font-semibold text-ink hover:underline dark:text-gold-400"
+                >
+                  Lupa Password?
+                </button>
+              )}
             </div>
 
             {mode === 'signup' && (
@@ -176,6 +187,8 @@ export default function AuthPanel({ units, busy, message, mode, onModeChange, on
           </form>
         </div>
       </div>
+
+      {forgotPasswordOpen && <ForgotPasswordModal onClose={() => setForgotPasswordOpen(false)} />}
     </div>
   );
 }

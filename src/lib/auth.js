@@ -84,6 +84,28 @@ export async function dbSignIn({ phone, password }) {
   return { user: profile, access_token, refresh_token, expires_at };
 }
 
+export async function requestPasswordResetOtp(phone) {
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/request-password-reset`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+    body: JSON.stringify({ phone }),
+  });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body?.error || 'Gagal mengirim kode OTP');
+  return body;
+}
+
+export async function verifyPasswordResetOtp({ phone, code, newPassword }) {
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/verify-password-reset`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+    body: JSON.stringify({ phone, code, new_password: newPassword }),
+  });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body?.error || 'Gagal reset password');
+  return body;
+}
+
 // Exchanges a stored refresh_token for a new access_token when the current one has
 // expired (real Supabase access tokens are short-lived, ~1hr, unlike the old static
 // key). Not yet wired into automatic session-loading -- see BUMDES Conventions for
