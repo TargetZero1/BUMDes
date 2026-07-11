@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { ArrowLeftRight, CheckCircle2, FileSpreadsheet, LayoutDashboard, RefreshCw, Users, Wallet, Warehouse, Wifi, WifiOff } from 'lucide-react';
 import AuthPanel from './components/AuthPanel';
 import SettingsModal from './components/SettingsModal';
@@ -686,6 +687,7 @@ export default function App() {
           <div className="mt-1">Brand: MSA • Contact: Bu Shefi — +62 896-5658-9449</div>
         </footer>
       </div>
+      <Analytics />
     </div>
   );
 }
