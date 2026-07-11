@@ -5,6 +5,12 @@ function getApiKey() {
   return key.startsWith('sb_') ? key : '';
 }
 
+let onSessionExpired = null;
+
+export function setSessionExpiredHandler(fn) {
+  onSessionExpired = fn;
+}
+
 async function throwApiError(response, fallbackMessage) {
   let detail = '';
   try {
@@ -13,6 +19,12 @@ async function throwApiError(response, fallbackMessage) {
   } catch {
     // response had no JSON body
   }
+
+  if (response.status === 401 && /jwt expired|invalid jwt|jwt is expired/i.test(detail)) {
+    onSessionExpired?.();
+    throw new Error('Sesi kamu sudah berakhir. Silakan login kembali.');
+  }
+
   throw new Error(detail ? `${fallbackMessage}: ${detail}` : fallbackMessage);
 }
 

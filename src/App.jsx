@@ -4,7 +4,7 @@ import AuthPanel from './components/AuthPanel';
 import SettingsModal from './components/SettingsModal';
 import Sidebar from './components/Sidebar';
 import { KATEGORI_UNIT, ROLE_LABELS, SUMBER_UNIT, TABLE_MAP, UNIT_SCOPE_ALL } from './lib/constants';
-import { sbDelete, sbDeleteWhere, sbInsert, sbSelect } from './lib/api';
+import { sbDelete, sbDeleteWhere, sbInsert, sbSelect, setSessionExpiredHandler } from './lib/api';
 import { buildGudangAlerts, buildMonthlyData, computeConsolidatedRingkasan, computeRingkasan } from './lib/analytics';
 import { emptyData, rowToEntry, rowToGudang } from './lib/data';
 import { formatRupiah } from './lib/formatters';
@@ -332,7 +332,7 @@ export default function App() {
     }
   };
 
-  const handleLogout = async () => {
+  const handleLogout = async ({ reason } = {}) => {
     clearSession();
     setSession(null);
     setProfile(null);
@@ -341,7 +341,15 @@ export default function App() {
     setSelectedUnitId(UNIT_SCOPE_ALL);
     setTab('dashboard');
     setNavOpen(false);
+    setAuthMessage(reason ? { type: 'error', text: reason } : null);
   };
+
+  useEffect(() => {
+    setSessionExpiredHandler(() => {
+      handleLogout({ reason: 'Sesi kamu sudah berakhir. Silakan login kembali.' });
+    });
+    return () => setSessionExpiredHandler(null);
+  }, []);
 
   const withErrorHandling = (fn) => async (...args) => {
     try {
