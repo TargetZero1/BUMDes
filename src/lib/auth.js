@@ -1,4 +1,4 @@
-import { sbSelect, sbInsert, sbPatch, sbRpc } from './api';
+import { sbInsert, sbPatch, sbRpc } from './api';
 import { SUPABASE_KEY, SUPABASE_URL } from './supabase';
 
 async function hashPassword(password) {
@@ -10,8 +10,8 @@ async function hashPassword(password) {
 }
 
 export async function dbSignUp({ fullName, phone, password, requested_unit_id = null, requested_unit_name = null, requested_unit_type = null }) {
-  const existing = await sbSelect('profiles', { query: `select=id&phone=eq.${encodeURIComponent(phone)}` });
-  if (existing && existing.length) throw new Error('Phone already registered');
+  const phoneTaken = await sbRpc('phone_taken', { p_phone: phone });
+  if (phoneTaken) throw new Error('Phone already registered');
 
   const password_hash = await hashPassword(password);
   const rows = await sbInsert('profiles', [{

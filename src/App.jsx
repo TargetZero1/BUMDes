@@ -22,7 +22,7 @@ const TransferToUnit = lazy(() => import('./components/TransferToUnit'));
 const UnitsManager = lazy(() => import('./components/UnitsManager'));
 const ImportExportSection = lazy(() => import('./components/ImportExportSection'));
 
-const TabFallback = () => <div className="py-8 text-center text-sm text-stone-400">Memuat…</div>;
+const TabFallback = () => <div className="py-8 text-center text-sm text-text-muted">Memuat…</div>;
 
 const UNIT_DATA_TABLES = ['ledger_debit', 'ledger_kredit', 'gudang'];
 
@@ -403,8 +403,8 @@ export default function App() {
 
   if (!authReady) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-stone-50">
-        <div className="flex items-center gap-2 text-stone-400">
+      <div className="flex min-h-screen items-center justify-center bg-surface">
+        <div className="flex items-center gap-2 text-text-muted">
           <RefreshCw className="h-5 w-5 animate-spin" />
           <span className="text-sm">Menyiapkan akses...</span>
         </div>
@@ -428,16 +428,16 @@ export default function App() {
 
   if (pendingRender) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.14),transparent_36%),linear-gradient(180deg,#f8fafc_0%,#f5f5f4_100%)] px-4 py-10 text-stone-800">
-        <div className="mx-auto max-w-2xl rounded-4xl border border-amber-200 bg-white p-8 shadow-xl shadow-stone-900/5">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">Menunggu Persetujuan</p>
-          <h1 className="text-3xl font-bold text-stone-800" style={{ fontFamily: "'Lora', serif" }}>
+      <div className="min-h-screen px-4 py-10 text-text">
+        <div className="mx-auto max-w-2xl rounded-4xl border border-gold-500/30 bg-surface-2 p-8 shadow-xl shadow-ink/5">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-gold-600 dark:text-gold-400">Menunggu Persetujuan</p>
+          <h1 className="text-3xl font-bold text-text" style={{ fontFamily: "'Lora', serif" }}>
             Akun kamu sudah dibuat
           </h1>
-          <p className="mt-3 text-sm text-stone-600">
+          <p className="mt-3 text-sm text-text-muted">
             Status akun saat ini <span className="font-semibold">{profile.status}</span>. Setelah Operator menyetujui, kamu bisa masuk ke dashboard.
           </p>
-          <div className="mt-6 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">
+          <div className="mt-6 rounded-2xl bg-gold-500/10 p-4 text-sm text-gold-700 dark:text-gold-300">
             Role yang diminta: <span className="font-semibold">{ROLE_LABELS[profile.role] || profile.role}</span>
             {profile.unit_id ? (
               <>
@@ -446,7 +446,7 @@ export default function App() {
               </>
             ) : null}
           </div>
-          <button onClick={handleLogout} className="mt-6 rounded-2xl bg-emerald-700 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-800">
+          <button onClick={handleLogout} className="mt-6 rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white hover:bg-ink-2">
             Keluar
           </button>
         </div>
@@ -456,8 +456,8 @@ export default function App() {
 
   if (!loaded || !data) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-stone-50">
-        <div className="flex items-center gap-2 text-stone-400">
+      <div className="flex min-h-screen items-center justify-center bg-surface">
+        <div className="flex items-center gap-2 text-text-muted">
           <RefreshCw className="h-5 w-5 animate-spin" />
           <span className="text-sm">Memuat data unit...</span>
         </div>
@@ -473,7 +473,7 @@ export default function App() {
   const activeUnitsCount = units.filter((unit) => unit.is_active).length;
 
   return (
-    <div className="flex min-h-screen bg-stone-50 text-stone-800" style={{ fontFamily: "'Inter', ui-sans-serif, system-ui" }}>
+    <div className="flex min-h-screen bg-surface text-text" style={{ fontFamily: "'Inter', ui-sans-serif, system-ui" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=JetBrains+Mono:wght@500;600&family=Inter:wght@400;500;600;700&display=swap');`}</style>
 
       <Sidebar
@@ -499,13 +499,13 @@ export default function App() {
       )}
 
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 border-b border-stone-200 bg-white/95 backdrop-blur">
+        <header className="sticky top-0 z-30 border-b border-border-subtle bg-surface-2/95 backdrop-blur">
           <div className="flex items-center gap-3 px-4 py-3 pl-14 lg:pl-6">
             <div className="min-w-0 flex-1">
-              <h1 className="truncate text-lg font-bold text-stone-800" style={{ fontFamily: "'Lora', serif" }}>
+              <h1 className="truncate text-lg font-bold text-text" style={{ fontFamily: "'Lora', serif" }}>
                 {PAGE_TITLES[tab] || 'Dashboard'}
               </h1>
-              <div className="flex min-w-0 items-center gap-1.5 text-xs text-stone-500">
+              <div className="flex min-w-0 items-center gap-1.5 text-xs text-text-muted">
                 {dbOk ? <Wifi className="h-3.5 w-3.5 shrink-0 text-emerald-600" /> : <WifiOff className="h-3.5 w-3.5 shrink-0 text-rose-600" />}
                 <span className="truncate">{dbOk ? `Tersambung ke database • ${currentUnitLabel}` : 'Gagal tersambung -- data kosong sementara'}</span>
               </div>
@@ -515,7 +515,7 @@ export default function App() {
               <select
                 value={selectedUnitId}
                 onChange={(event) => setSelectedUnitId(event.target.value)}
-                className="hidden max-w-48 rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 outline-none focus:border-emerald-500 sm:block"
+                className="hidden max-w-48 rounded-xl border border-border-subtle bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-gold-500 sm:block"
               >
                 <option value={UNIT_SCOPE_ALL}>Semua Unit</option>
                 {units.map((unit) => (
@@ -526,23 +526,23 @@ export default function App() {
               </select>
             )}
 
-            <button onClick={refreshData} className="rounded-lg border border-stone-200 p-2 text-stone-500 hover:bg-stone-100" title="Refresh data">
+            <button onClick={refreshData} className="rounded-lg border border-border-subtle p-2 text-text-muted hover:bg-surface" title="Refresh data">
               <RefreshCw className="h-4 w-4" />
             </button>
 
-            <div className="hidden items-center gap-1.5 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-800 sm:flex">
-              <span className="font-semibold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            <div className="hidden items-center gap-1.5 rounded-xl bg-gold-500/10 px-3 py-2 text-sm text-gold-700 dark:text-gold-300 sm:flex">
+              <span className="font-semibold tabular-nums" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 {formatRupiah(dashboardGrandTotals.bersih)}
               </span>
             </div>
           </div>
 
           {isOperator && (
-            <div className="border-t border-stone-100 px-4 py-2 sm:hidden">
+            <div className="border-t border-border-subtle px-4 py-2 sm:hidden">
               <select
                 value={selectedUnitId}
                 onChange={(event) => setSelectedUnitId(event.target.value)}
-                className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 outline-none focus:border-emerald-500"
+                className="w-full rounded-xl border border-border-subtle bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-gold-500"
               >
                 <option value={UNIT_SCOPE_ALL}>Semua Unit</option>
                 {units.map((unit) => (
@@ -557,12 +557,22 @@ export default function App() {
 
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 lg:px-8">
           {overviewOnly && (tab === 'kasUnit' || tab === 'gudang') && (
-            <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <div className="mb-4 rounded-2xl border border-gold-500/30 bg-gold-500/10 px-4 py-3 text-sm text-gold-700 dark:text-gold-300">
               Kamu sedang melihat overview semua unit. Untuk input, edit, impor, atau reset data unit, pilih satu unit dulu.
             </div>
           )}
 
-          {notice && <div className={`mb-4 rounded-xl px-4 py-2.5 text-sm ${notice.type === 'error' ? 'border border-rose-200 bg-rose-50 text-rose-700' : 'border border-emerald-200 bg-emerald-50 text-emerald-700'}`}>{notice.text}</div>}
+          {notice && (
+            <div
+              className={`mb-4 rounded-xl px-4 py-2.5 text-sm ${
+                notice.type === 'error'
+                  ? 'border border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300'
+                  : 'border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300'
+              }`}
+            >
+              {notice.text}
+            </div>
+          )}
 
           {tab === 'dashboard' && (
             <Suspense fallback={<TabFallback />}>
@@ -617,7 +627,7 @@ export default function App() {
               </div>
             </Suspense>
           ) : (
-            <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-6 text-sm text-stone-600">
+            <div className="rounded-2xl border border-dashed border-border-subtle bg-surface-2 p-6 text-sm text-text-muted">
               Pilih satu unit di header untuk mengelola data kas.
             </div>
           ))}
@@ -627,7 +637,7 @@ export default function App() {
               <GudangSection entries={data.gudang} onAdd={addGudang} onDelete={deleteGudang} isToko={isToko} unitLabel={selectedUnit?.name} />
             </Suspense>
           ) : (
-            <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-6 text-sm text-stone-600">
+            <div className="rounded-2xl border border-dashed border-border-subtle bg-surface-2 p-6 text-sm text-text-muted">
               Pilih satu unit di header untuk mengelola gudang.
             </div>
           ))}
@@ -665,13 +675,13 @@ export default function App() {
               <ImportExportSection data={data} onImportReplace={replaceAllData} onReset={handleReset} computeRingkasan={computeRingkasan} profile={profile} selectedUnitId={selectedUnitId} currentUnitLabel={currentUnitLabel} session={session} />
             </Suspense>
           ) : (
-            <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-6 text-sm text-stone-600">
+            <div className="rounded-2xl border border-dashed border-border-subtle bg-surface-2 p-6 text-sm text-text-muted">
               Pilih satu unit di header untuk impor / ekspor data.
             </div>
           ))}
         </main>
 
-        <footer className="mx-auto w-full max-w-6xl px-4 py-6 text-center text-xs text-stone-400 lg:px-8">
+        <footer className="mx-auto w-full max-w-6xl px-4 py-6 text-center text-xs text-text-muted lg:px-8">
           <div>Data tersimpan di database BUMDes Mulyoarjo — otomatis update di semua perangkat.</div>
           <div className="mt-1">Brand: MSA • Contact: Bu Shefi — +62 896-5658-9449</div>
         </footer>

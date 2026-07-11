@@ -14,12 +14,12 @@ export default class ErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-stone-50 px-4 text-center text-stone-700">
+        <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-surface px-4 text-center text-text">
           <p className="text-lg font-semibold">Terjadi kesalahan pada aplikasi.</p>
-          <p className="text-sm text-stone-500">Silakan muat ulang halaman.</p>
+          <p className="text-sm text-text-muted">Silakan muat ulang halaman.</p>
           <button
             onClick={() => window.location.reload()}
-            className="rounded-xl bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800"
+            className="rounded-xl bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink-2"
           >
             Muat Ulang
           </button>

@@ -7,10 +7,10 @@ import { formatRupiah, formatTanggal } from '../lib/formatters';
 import { BANK_LIST, TRANSFER_STATUS_LABELS } from '../lib/constants';
 
 const STATUS_BADGE_CLASS = {
-  approved: 'bg-emerald-100 text-emerald-700',
-  ditolak: 'bg-rose-100 text-rose-700',
-  menunggu_bendahara: 'bg-amber-100 text-amber-700',
-  menunggu_direktur: 'bg-amber-100 text-amber-700',
+  approved: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300',
+  ditolak: 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-300',
+  menunggu_bendahara: 'bg-gold-500/15 text-gold-700 dark:text-gold-300',
+  menunggu_direktur: 'bg-gold-500/15 text-gold-700 dark:text-gold-300',
 };
 
 export default function TransferToUnit({ session, profile, units, canSend, currentUnitId }) {
@@ -72,7 +72,7 @@ export default function TransferToUnit({ session, profile, units, canSend, curre
       key: 'status',
       label: 'Status',
       render: (row) => (
-        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_BADGE_CLASS[row.status] || 'bg-stone-100 text-stone-600'}`}>
+        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_BADGE_CLASS[row.status] || 'bg-surface text-text-muted'}`}>
           {TRANSFER_STATUS_LABELS[row.status] || row.status}
         </span>
       ),
@@ -82,22 +82,28 @@ export default function TransferToUnit({ session, profile, units, canSend, curre
   return (
     <div>
       <div className="mb-5">
-        <h2 className="text-2xl font-bold text-stone-800" style={{ fontFamily: "'Lora', serif" }}>
+        <h2 className="text-2xl font-bold text-text" style={{ fontFamily: "'Lora', serif" }}>
           Kirim Dana ke Unit
         </h2>
-        <p className="text-sm text-stone-500">Transfer dari Kas Umum BUMDes ke Kas Unit — langsung tercatat di kedua sisi.</p>
+        <p className="text-sm text-text-muted">Transfer dari Kas Umum BUMDes ke Kas Unit — langsung tercatat di kedua sisi.</p>
       </div>
 
       {notice && (
-        <div className={`mb-4 rounded-xl px-4 py-2.5 text-sm ${notice.type === 'error' ? 'border border-rose-200 bg-rose-50 text-rose-700' : 'border border-emerald-200 bg-emerald-50 text-emerald-700'}`}>
+        <div
+          className={`mb-4 rounded-xl px-4 py-2.5 text-sm ${
+            notice.type === 'error'
+              ? 'border border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300'
+              : 'border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300'
+          }`}
+        >
           {notice.text}
         </div>
       )}
 
       <div className={`grid grid-cols-1 gap-6 ${canSend ? 'lg:grid-cols-3' : ''}`}>
         {canSend && (
-          <div className="rounded-2xl border border-stone-200 bg-white p-4 lg:col-span-1">
-            <h3 className="mb-3 font-semibold text-stone-700">Transfer Baru</h3>
+          <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4 lg:col-span-1">
+            <h3 className="mb-3 font-semibold text-text">Transfer Baru</h3>
             <EntryForm
               tone="transfer"
               submitLabel="Kirim Dana"
@@ -118,9 +124,9 @@ export default function TransferToUnit({ session, profile, units, canSend, curre
         )}
 
         <div className={canSend ? 'lg:col-span-2' : ''}>
-          <h3 className="mb-3 font-semibold text-stone-700">Riwayat Transfer</h3>
+          <h3 className="mb-3 font-semibold text-text">Riwayat Transfer</h3>
           {loading ? (
-            <div className="py-6 text-center text-sm text-stone-400">Memuat…</div>
+            <div className="py-6 text-center text-sm text-text-muted">Memuat…</div>
           ) : (
             <TxTable
               rows={rows.map((row) => ({ ...row, tanggal: row.tanggal }))}
@@ -131,15 +137,15 @@ export default function TransferToUnit({ session, profile, units, canSend, curre
                   <button
                     onClick={async () => {
                       const { generateTransferInvoicePDF } = await import('../lib/invoice');
-                      generateTransferInvoicePDF(row, unitNameFor(row.unit_id), profile?.full_name || 'Operator BUMDes', row.bendahara_name, row.direktur_name);
+                      generateTransferInvoicePDF(row, unitNameFor(row.unit_id), profile?.full_name || 'Operator BUMDes', row.bendahara_name, row.direktur_name, row.unit_owner_name);
                     }}
-                    className="text-stone-400 transition-colors hover:text-emerald-700"
+                    className="text-text-muted transition-colors hover:text-emerald-700 dark:hover:text-emerald-400"
                     title="Unduh Invoice PDF"
                   >
                     <FileDown className="h-4 w-4" />
                   </button>
                 ) : (
-                  <FileDown className="h-4 w-4 cursor-not-allowed text-stone-200" title="Invoice tersedia setelah disetujui Direktur" />
+                  <FileDown className="h-4 w-4 cursor-not-allowed text-text-muted" title="Invoice tersedia setelah disetujui Direktur" />
                 )
               }
             />

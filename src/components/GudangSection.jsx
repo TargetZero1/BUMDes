@@ -64,15 +64,15 @@ export default function GudangSection({ entries, onAdd, onDelete, isToko, unitLa
     <div>
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-stone-800" style={{ fontFamily: "'Lora', serif" }}>
+          <h2 className="text-2xl font-bold text-text" style={{ fontFamily: "'Lora', serif" }}>
             Buku Gudang
           </h2>
-          <p className="text-sm text-stone-500">Stok barang {unitLabel ? `— ${unitLabel}` : ''}</p>
+          <p className="text-sm text-text-muted">Stok barang {unitLabel ? `— ${unitLabel}` : ''}</p>
         </div>
         {rekap.length > 0 && (
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-right">
-            <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-emerald-700">Total Nilai Stok</p>
-            <p className="text-lg font-bold text-emerald-800" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          <div className="rounded-2xl border border-emerald-200/70 bg-emerald-50 px-4 py-2 text-right dark:border-emerald-900/40 dark:bg-emerald-950/25">
+            <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Total Nilai Stok</p>
+            <p className="tabular-nums text-lg font-bold text-emerald-800 dark:text-emerald-300" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               {formatRupiah(totalNilaiStok)}
             </p>
           </div>
@@ -80,8 +80,8 @@ export default function GudangSection({ entries, onAdd, onDelete, isToko, unitLa
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="rounded-2xl border border-stone-200 bg-white p-4 lg:col-span-1">
-          <h3 className="mb-3 font-semibold text-stone-700">Catat Barang</h3>
+        <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4 lg:col-span-1">
+          <h3 className="mb-3 font-semibold text-text">Catat Barang</h3>
           <EntryForm
             tone="debit"
             submitLabel="Simpan"
@@ -99,56 +99,60 @@ export default function GudangSection({ entries, onAdd, onDelete, isToko, unitLa
           />
         </div>
 
-        <div className="rounded-2xl border border-stone-200 bg-white p-4 lg:col-span-2">
-          <h3 className="mb-3 font-semibold text-stone-700">Riwayat</h3>
+        <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4 lg:col-span-2">
+          <h3 className="mb-3 font-semibold text-text">Riwayat</h3>
           <TxTable rows={entries} emptyText="Belum ada catatan gudang." onDelete={onDelete} columns={columns} />
         </div>
       </div>
 
       <div>
-        <h3 className="mb-3 font-semibold text-stone-700">Rekap Stok</h3>
+        <h3 className="mb-3 font-semibold text-text">Rekap Stok</h3>
         {rekap.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-stone-200 py-6 text-center text-sm italic text-stone-400">Belum ada stok untuk direkap.</div>
+          <div className="rounded-xl border border-dashed border-border-subtle py-6 text-center text-sm italic text-text-muted">Belum ada stok untuk direkap.</div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {rekap.map((item) => (
-              <div key={item.barang} className="rounded-2xl border border-stone-200 bg-white p-4">
+              <div key={item.barang} className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
                 <div className="mb-2 flex items-start justify-between">
-                  <p className="text-sm font-semibold text-stone-700">{item.barang}</p>
-                  {item.saldo <= 2 && <AlertTriangle className="h-4 w-4 shrink-0 text-amber-500" title="Stok menipis" />}
+                  <p className="text-sm font-semibold text-text">{item.barang}</p>
+                  {item.saldo <= 2 && <AlertTriangle className="h-4 w-4 shrink-0 text-gold-600 dark:text-gold-400" title="Stok menipis" />}
                 </div>
-                <div className="mb-1 flex justify-between text-xs text-stone-500">
+                <div className="mb-1 flex justify-between text-xs text-text-muted">
                   <span>Masuk</span>
                   <span>
                     +{formatQty(item.masuk)} {item.satuan}
                   </span>
                 </div>
-                <div className="mb-2 flex justify-between text-xs text-stone-500">
+                <div className="mb-2 flex justify-between text-xs text-text-muted">
                   <span>Keluar</span>
                   <span>
                     -{formatQty(item.keluar)} {item.satuan}
                   </span>
                 </div>
                 {item.harga ? (
-                  <div className="mb-2 flex justify-between text-xs text-stone-500">
+                  <div className="mb-2 flex justify-between text-xs text-text-muted">
                     <span>Harga/Satuan</span>
                     <span>{formatRupiah(item.harga)}</span>
                   </div>
                 ) : null}
                 {isToko && item.hargaJual ? (
-                  <div className="mb-2 flex justify-between text-xs text-stone-500">
+                  <div className="mb-2 flex justify-between text-xs text-text-muted">
                     <span>Harga Jual</span>
                     <span>{formatRupiah(item.hargaJual)}</span>
                   </div>
                 ) : null}
-                <div className={`flex justify-between border-t border-stone-100 pt-2 text-sm font-bold ${item.saldo <= 2 ? 'text-amber-600' : 'text-emerald-700'}`}>
+                <div
+                  className={`flex justify-between border-t border-border-subtle pt-2 text-sm font-bold ${
+                    item.saldo <= 2 ? 'text-gold-600 dark:text-gold-400' : 'text-emerald-700 dark:text-emerald-400'
+                  }`}
+                >
                   <span>Total</span>
                   <span>
                     {formatQty(item.saldo)} {item.satuan}
                   </span>
                 </div>
                 {item.harga ? (
-                  <div className="mt-1 flex justify-between text-xs font-semibold text-amber-700">
+                  <div className="mt-1 flex justify-between text-xs font-semibold text-gold-700 dark:text-gold-400">
                     <span>Nilai Stok</span>
                     <span>{formatRupiah(item.nilaiStok)}</span>
                   </div>

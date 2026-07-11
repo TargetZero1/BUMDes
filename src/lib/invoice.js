@@ -8,7 +8,7 @@ const ORG = {
   line1: 'BADAN USAHA MILIK DESA (BUMDes)',
   line2: 'MULYO SEJAHTERA ABADI',
   address: 'Ampelgading, Mulyoarjo, Kec. Lawang, Kabupaten Malang, Jawa Timur 65216',
-  email: 'mulyoarjolawang@gmail.com',
+  email: 'pemdesmulyoarjo.maju@gmail.com',
   phone: '089777778945',
 };
 
@@ -222,7 +222,7 @@ function drawFooterBar(doc, y, text) {
   doc.text(text, marginX + 8, y + 14, { maxWidth: pageWidth - marginX * 2 - 16 });
 }
 
-export async function generateTransferInvoicePDF(transfer, unitName, issuerName, bendaharaName, direkturName) {
+export async function generateTransferInvoicePDF(transfer, unitName, issuerName, bendaharaName, direkturName, ownerName) {
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const logoDataUrl = await getLogoDataUrl();
   drawWatermark(doc, await getWatermarkDataUrl());
@@ -237,14 +237,18 @@ export async function generateTransferInvoicePDF(transfer, unitName, issuerName,
   doc.text(`No: ${invoiceNo}`, 40, y);
   y += 14;
   doc.setFont('helvetica', 'normal');
-  doc.text(`Perihal: Transfer Dana ke Unit ${unitName}`, 40, y);
+  doc.text(`Perihal: Transfer Dana ke ${unitName}`, 40, y);
   y += 26;
 
   y = drawTwoColumnInfo(
     doc,
     y,
     'Kepada:',
-    [unitName, transfer.bank_name ? `Bank: ${transfer.bank_name}` : null, transfer.account_number ? `No. Rekening: ${transfer.account_number}` : null].filter(Boolean),
+    [
+      ownerName ? `${unitName} (${ownerName})` : unitName,
+      transfer.bank_name ? `Bank: ${transfer.bank_name}` : null,
+      transfer.account_number ? `No. Rekening: ${transfer.account_number}` : null,
+    ].filter(Boolean),
     [
       ['Tanggal Transfer:', formatTanggal(transfer.tanggal)],
       ['Diterbitkan Oleh:', issuerName || '-'],
@@ -285,9 +289,10 @@ export async function generateTransferInvoicePDF(transfer, unitName, issuerName,
   doc.setFont('helvetica', 'normal');
   doc.text(transfer.description || '-', 40, y, { maxWidth: 400 });
 
+  const recipientLabel = ownerName ? `${unitName} (${ownerName})` : unitName;
   const bankNote = transfer.bank_name
-    ? `Dana ditransfer ke rek. ${transfer.bank_name} No.${transfer.account_number || '-'} a.n Unit ${unitName}`
-    : `Dana ditransfer ke Unit ${unitName}`;
+    ? `Dana ditransfer ke rek. ${transfer.bank_name} No.${transfer.account_number || '-'} a.n ${recipientLabel}`
+    : `Dana ditransfer ke ${recipientLabel}`;
   drawFooterBar(doc, Math.max(y + 30, 760), bankNote);
 
   doc.save(`invoice-transfer-${transfer.id}.pdf`);

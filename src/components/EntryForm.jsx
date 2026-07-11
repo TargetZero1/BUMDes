@@ -40,19 +40,26 @@ export default function EntryForm({ tone, fields, onSubmit, submitLabel }) {
     }
   };
 
-  const toneButton = tone === 'debit' ? 'bg-emerald-700 hover:bg-emerald-800' : tone === 'kredit' ? 'bg-rose-700 hover:bg-rose-800' : 'bg-amber-600 hover:bg-amber-700';
+  const toneButton =
+    tone === 'debit'
+      ? 'bg-emerald-700 text-white hover:bg-emerald-800'
+      : tone === 'kredit'
+        ? 'bg-rose-700 text-white hover:bg-rose-800'
+        : tone === 'transfer'
+          ? 'bg-ink text-white hover:bg-ink-2'
+          : 'bg-gold-500 text-ink hover:bg-gold-400';
 
   return (
     <form onSubmit={handleSubmit} className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
       {fields.map((field) => (
         <div key={field.key} className={field.span2 ? 'sm:col-span-2' : ''}>
-          <label className="mb-1 block text-xs font-medium text-stone-500">{field.label}</label>
+          <label className="mb-1 block text-xs font-medium text-text-muted">{field.label}</label>
           {field.type === 'select' ? (
             <>
               <select
                 value={form[field.key]}
                 onChange={(event) => set(field.key, event.target.value)}
-                className="w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full rounded-lg border border-border-subtle bg-surface-2 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500"
               >
                 <option value="" disabled>
                   Pilih...
@@ -70,7 +77,7 @@ export default function EntryForm({ tone, fields, onSubmit, submitLabel }) {
                   onChange={(event) => set(`${field.key}Other`, event.target.value)}
                   placeholder={`Tulis ${field.label.toLowerCase()} lainnya`}
                   required
-                  className="mt-2 w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="mt-2 w-full rounded-lg border border-border-subtle px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500"
                 />
               )}
             </>
@@ -81,7 +88,7 @@ export default function EntryForm({ tone, fields, onSubmit, submitLabel }) {
               value={formatThousands(form[field.key])}
               placeholder={field.placeholder}
               onChange={(event) => set(field.key, event.target.value.replace(/\D/g, ''))}
-              className="w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full rounded-lg border border-border-subtle px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500"
             />
           ) : (
             <input
@@ -92,7 +99,7 @@ export default function EntryForm({ tone, fields, onSubmit, submitLabel }) {
               placeholder={field.placeholder}
               list={field.listId}
               onChange={(event) => set(field.key, event.target.value)}
-              className="w-full rounded-lg border border-stone-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full rounded-lg border border-border-subtle px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500"
             />
           )}
           {field.listId && field.listOptions && (
@@ -107,7 +114,7 @@ export default function EntryForm({ tone, fields, onSubmit, submitLabel }) {
       <button
         type="submit"
         disabled={busy}
-        className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-semibold text-white transition-colors disabled:opacity-60 sm:col-span-2 ${toneButton}`}
+        className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-semibold transition-colors disabled:opacity-60 sm:col-span-2 ${toneButton}`}
       >
         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} {submitLabel}
       </button>

@@ -53,10 +53,10 @@ export default function KasUmumBumdes({ units, kasUmumEntries, allUnitsLedger, o
   return (
     <div>
       <div className="mb-5">
-        <h2 className="text-2xl font-bold text-stone-800" style={{ fontFamily: "'Lora', serif" }}>
+        <h2 className="text-2xl font-bold text-text" style={{ fontFamily: "'Lora', serif" }}>
           Kas Umum BUMDes
         </h2>
-        <p className="text-sm text-stone-500">Ringkasan keuangan seluruh BUMDes -- kas pusat digabung dengan seluruh unit</p>
+        <p className="text-sm text-text-muted">Ringkasan keuangan seluruh BUMDes -- kas pusat digabung dengan seluruh unit</p>
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -66,10 +66,10 @@ export default function KasUmumBumdes({ units, kasUmumEntries, allUnitsLedger, o
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-stone-200 bg-white p-4">
+        <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
           <div className="mb-3 flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-emerald-600" />
-            <h3 className="font-semibold text-stone-700">Debit -- Uang Masuk (Kas Pusat)</h3>
+            <h3 className="font-semibold text-text">Debit -- Uang Masuk (Kas Pusat)</h3>
           </div>
           <EntryForm
             tone="debit"
@@ -84,10 +84,10 @@ export default function KasUmumBumdes({ units, kasUmumEntries, allUnitsLedger, o
           />
         </div>
 
-        <div className="rounded-2xl border border-stone-200 bg-white p-4">
+        <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
           <div className="mb-3 flex items-center gap-2">
             <TrendingDown className="h-4 w-4 text-rose-600" />
-            <h3 className="font-semibold text-stone-700">Kredit -- Uang Keluar (Kas Pusat)</h3>
+            <h3 className="font-semibold text-text">Kredit -- Uang Keluar (Kas Pusat)</h3>
           </div>
           <EntryForm
             tone="kredit"
@@ -103,17 +103,17 @@ export default function KasUmumBumdes({ units, kasUmumEntries, allUnitsLedger, o
         </div>
       </div>
 
-      <div className="mb-6 rounded-2xl border border-stone-200 bg-white p-4">
+      <div className="mb-6 rounded-2xl border border-border-subtle bg-surface-2 p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2">
-            <Landmark className="h-4 w-4 shrink-0 text-emerald-700" />
-            <h3 className="min-w-0 font-semibold text-stone-700">Semua Transaksi -- Kas Pusat + Seluruh Unit</h3>
+            <Landmark className="h-4 w-4 shrink-0 text-emerald-700 dark:text-emerald-400" />
+            <h3 className="min-w-0 font-semibold text-text">Semua Transaksi -- Kas Pusat + Seluruh Unit</h3>
           </div>
           <div className="flex flex-wrap gap-2">
             <select
               value={filterSource}
               onChange={(event) => setFilterSource(event.target.value)}
-              className="rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="rounded-lg border border-border-subtle bg-surface-2 px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-gold-500"
             >
               <option value="all">Semua Sumber</option>
               <option value="central">{CENTRAL_SOURCE}</option>
@@ -126,7 +126,7 @@ export default function KasUmumBumdes({ units, kasUmumEntries, allUnitsLedger, o
             <select
               value={filterTipe}
               onChange={(event) => setFilterTipe(event.target.value)}
-              className="rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="rounded-lg border border-border-subtle bg-surface-2 px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-gold-500"
             >
               <option value="all">Semua Tipe</option>
               <option value="Pemasukan">Pemasukan</option>
@@ -141,7 +141,7 @@ export default function KasUmumBumdes({ units, kasUmumEntries, allUnitsLedger, o
             row.sourceId === 'central' ? (
               <ConfirmDeleteButton onConfirm={() => (row.tipe === 'Pemasukan' ? onDeleteDebit(row.id) : onDeleteKredit(row.id))} />
             ) : (
-              <span className="text-[0.65rem] text-stone-300" title="Kelola dari halaman Kas Unit">
+              <span className="text-[0.65rem] text-text-muted" title="Kelola dari halaman Kas Unit">
                 --
               </span>
             )
@@ -152,7 +152,7 @@ export default function KasUmumBumdes({ units, kasUmumEntries, allUnitsLedger, o
               key: 'source',
               label: 'Sumber',
               render: (row) => (
-                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${row.sourceId === 'central' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}`}>
+                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${row.sourceId === 'central' ? 'bg-gold-500/15 text-gold-700 dark:text-gold-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300'}`}>
                   {row.source}
                 </span>
               ),
@@ -162,7 +162,7 @@ export default function KasUmumBumdes({ units, kasUmumEntries, allUnitsLedger, o
               key: 'tipe',
               label: 'Tipe',
               render: (row) => (
-                <span className={row.tipe === 'Pemasukan' ? 'text-emerald-700' : 'text-rose-700'}>{row.tipe}</span>
+                <span className={row.tipe === 'Pemasukan' ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}>{row.tipe}</span>
               ),
             },
             { key: 'label', label: 'Kategori / Sumber' },
@@ -171,16 +171,16 @@ export default function KasUmumBumdes({ units, kasUmumEntries, allUnitsLedger, o
         />
       </div>
 
-      <div className="rounded-2xl border border-stone-200 bg-white p-4">
-        <h3 className="mb-3 font-semibold text-stone-700">Ringkasan per Unit</h3>
+      <div className="rounded-2xl border border-border-subtle bg-surface-2 p-4">
+        <h3 className="mb-3 font-semibold text-text">Ringkasan per Unit</h3>
         {perUnitBreakdown.length === 0 ? (
-          <div className="py-6 text-center text-sm italic text-stone-400">Belum ada data.</div>
+          <div className="py-6 text-center text-sm italic text-text-muted">Belum ada data.</div>
         ) : (
           <>
-            <div className="hidden overflow-x-auto rounded-xl border border-stone-200 sm:block">
+            <div className="hidden overflow-x-auto rounded-xl border border-border-subtle sm:block">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-stone-100 text-xs uppercase tracking-wide text-stone-500">
+                  <tr className="bg-surface text-xs uppercase tracking-wide text-text-muted">
                     <th className="px-3 py-2 text-left font-semibold">Unit</th>
                     <th className="px-3 py-2 text-left font-semibold">Pemasukan</th>
                     <th className="px-3 py-2 text-left font-semibold">Pengeluaran</th>
@@ -189,11 +189,11 @@ export default function KasUmumBumdes({ units, kasUmumEntries, allUnitsLedger, o
                 </thead>
                 <tbody>
                   {perUnitBreakdown.map((row) => (
-                    <tr key={row.key} className="border-t border-stone-100">
+                    <tr key={row.key} className="border-t border-border-subtle">
                       <td className="px-3 py-2 font-medium">{row.name}</td>
-                      <td className="px-3 py-2 text-emerald-700">{formatRupiah(row.pemasukan)}</td>
-                      <td className="px-3 py-2 text-rose-700">{formatRupiah(row.pengeluaran)}</td>
-                      <td className="px-3 py-2 font-semibold text-amber-700">{formatRupiah(row.pemasukan - row.pengeluaran)}</td>
+                      <td className="px-3 py-2 text-emerald-700 dark:text-emerald-400">{formatRupiah(row.pemasukan)}</td>
+                      <td className="px-3 py-2 text-rose-700 dark:text-rose-400">{formatRupiah(row.pengeluaran)}</td>
+                      <td className="px-3 py-2 font-semibold text-gold-700 dark:text-gold-400">{formatRupiah(row.pemasukan - row.pengeluaran)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -202,20 +202,20 @@ export default function KasUmumBumdes({ units, kasUmumEntries, allUnitsLedger, o
 
             <div className="space-y-2 sm:hidden">
               {perUnitBreakdown.map((row) => (
-                <div key={row.key} className="rounded-xl border border-stone-200 bg-white p-3">
-                  <p className="mb-1.5 text-sm font-semibold text-stone-800">{row.name}</p>
+                <div key={row.key} className="rounded-xl border border-border-subtle bg-surface-2 p-3">
+                  <p className="mb-1.5 text-sm font-semibold text-text">{row.name}</p>
                   <div className="space-y-1 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-stone-400">Pemasukan</span>
-                      <span className="font-medium text-emerald-700">{formatRupiah(row.pemasukan)}</span>
+                      <span className="text-text-muted">Pemasukan</span>
+                      <span className="font-medium text-emerald-700 dark:text-emerald-400">{formatRupiah(row.pemasukan)}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-stone-400">Pengeluaran</span>
-                      <span className="font-medium text-rose-700">{formatRupiah(row.pengeluaran)}</span>
+                      <span className="text-text-muted">Pengeluaran</span>
+                      <span className="font-medium text-rose-700 dark:text-rose-400">{formatRupiah(row.pengeluaran)}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-stone-400">Bersih</span>
-                      <span className="font-semibold text-amber-700">{formatRupiah(row.pemasukan - row.pengeluaran)}</span>
+                      <span className="text-text-muted">Bersih</span>
+                      <span className="font-semibold text-gold-700 dark:text-gold-400">{formatRupiah(row.pemasukan - row.pengeluaran)}</span>
                     </div>
                   </div>
                 </div>

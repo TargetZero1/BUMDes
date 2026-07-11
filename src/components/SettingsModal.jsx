@@ -49,87 +49,93 @@ export default function SettingsModal({ profile, onClose, onSaved }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+      <div className="w-full max-w-md rounded-2xl bg-surface-2 p-6 shadow-2xl">
         <div className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Settings className="h-5 w-5 text-emerald-700" />
-            <h3 className="text-lg font-bold text-stone-800" style={{ fontFamily: "'Lora', serif" }}>
+            <Settings className="h-5 w-5 text-ink dark:text-gold-400" />
+            <h3 className="text-lg font-bold text-text" style={{ fontFamily: "'Lora', serif" }}>
               Pengaturan Akun
             </h3>
           </div>
-          <button onClick={onClose} className="rounded-lg p-1.5 text-stone-400 hover:bg-stone-100 hover:text-stone-600">
+          <button onClick={onClose} className="rounded-lg p-1.5 text-text-muted hover:bg-surface hover:text-text">
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="mb-4 rounded-xl bg-stone-50 px-3 py-2 text-xs text-stone-500">
-          Role: <span className="font-semibold text-stone-700">{ROLE_LABELS[profile?.role] || profile?.role}</span>
+        <div className="mb-4 rounded-xl bg-surface px-3 py-2 text-xs text-text-muted">
+          Role: <span className="font-semibold text-text">{ROLE_LABELS[profile?.role] || profile?.role}</span>
         </div>
 
         <form onSubmit={handleSave} className="space-y-4">
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">Nama Lengkap</label>
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-text-muted">Nama Lengkap</label>
             <input
               value={fullName}
               onChange={(event) => setFullName(event.target.value)}
-              className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm outline-none focus:border-emerald-500"
+              className="w-full rounded-xl border border-border-subtle px-3 py-2 text-sm outline-none focus:border-gold-500"
               required
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">Nomor Telepon</label>
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-text-muted">Nomor Telepon</label>
             <input
               type="tel"
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
-              className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm outline-none focus:border-emerald-500"
+              className="w-full rounded-xl border border-border-subtle px-3 py-2 text-sm outline-none focus:border-gold-500"
               placeholder="+628xxxxxxxxxx"
               required
             />
           </div>
 
-          <div className="border-t border-stone-100 pt-4">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-stone-500">Ganti Password (opsional)</p>
+          <div className="border-t border-border-subtle pt-4">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-muted">Ganti Password (opsional)</p>
             <div className="space-y-3">
               <input
                 type="password"
                 value={currentPassword}
                 onChange={(event) => setCurrentPassword(event.target.value)}
                 placeholder="Password saat ini"
-                className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm outline-none focus:border-emerald-500"
+                className="w-full rounded-xl border border-border-subtle px-3 py-2 text-sm outline-none focus:border-gold-500"
               />
               <input
                 type="password"
                 value={newPassword}
                 onChange={(event) => setNewPassword(event.target.value)}
                 placeholder="Password baru"
-                className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm outline-none focus:border-emerald-500"
+                className="w-full rounded-xl border border-border-subtle px-3 py-2 text-sm outline-none focus:border-gold-500"
               />
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
                 placeholder="Konfirmasi password baru"
-                className="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm outline-none focus:border-emerald-500"
+                className="w-full rounded-xl border border-border-subtle px-3 py-2 text-sm outline-none focus:border-gold-500"
               />
             </div>
           </div>
 
           {notice && (
-            <div className={`rounded-xl px-3 py-2 text-sm ${notice.type === 'error' ? 'border border-rose-200 bg-rose-50 text-rose-700' : 'border border-emerald-200 bg-emerald-50 text-emerald-700'}`}>
+            <div
+              className={`rounded-xl px-3 py-2 text-sm ${
+                notice.type === 'error'
+                  ? 'border border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300'
+                  : 'border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300'
+              }`}
+            >
               {notice.text}
             </div>
           )}
 
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={onClose} className="rounded-xl px-4 py-2 text-sm text-stone-600 hover:bg-stone-100">
+            <button type="button" onClick={onClose} className="rounded-xl px-4 py-2 text-sm text-text-muted hover:bg-surface">
               Tutup
             </button>
             <button
               type="submit"
               disabled={busy}
-              className="flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-60"
+              className="flex items-center gap-2 rounded-xl bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink-2 disabled:opacity-60"
             >
               {busy && <Loader2 className="h-4 w-4 animate-spin" />}
               Simpan

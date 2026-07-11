@@ -92,40 +92,40 @@ export default function UnitsManager({ session }) {
   return (
     <div>
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-stone-800" style={{ fontFamily: "'Lora', serif" }}>Manage Units</h2>
-        <p className="text-sm text-stone-500">Buat unit baru, konfirmasi pendaftaran, dan aktifkan/nonaktifkan unit.</p>
+        <h2 className="text-2xl font-bold text-text" style={{ fontFamily: "'Lora', serif" }}>Manage Units</h2>
+        <p className="text-sm text-text-muted">Buat unit baru, konfirmasi pendaftaran, dan aktifkan/nonaktifkan unit.</p>
       </div>
 
       <div className="mb-8">
-        <h3 className="mb-3 font-semibold text-stone-700">Menunggu Konfirmasi ({pending.length})</h3>
+        <h3 className="mb-3 font-semibold text-text">Menunggu Konfirmasi ({pending.length})</h3>
         {loading ? (
-          <div className="text-sm text-stone-400">Memuat…</div>
+          <div className="text-sm text-text-muted">Memuat…</div>
         ) : pending.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-6 text-center text-sm italic text-stone-400">Tidak ada pendaftaran menunggu.</div>
+          <div className="rounded-2xl border border-dashed border-border-subtle bg-surface-2 p-6 text-center text-sm italic text-text-muted">Tidak ada pendaftaran menunggu.</div>
         ) : (
           <div className="space-y-3">
             {pending.map((profile) => {
               const draft = draftFor(profile);
               const isExisting = Boolean(profile.requested_unit_id);
               return (
-                <div key={profile.id} className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                <div key={profile.id} className="rounded-2xl border border-gold-500/30 bg-gold-500/10 p-4">
                   <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <div className="font-semibold text-stone-800">{profile.full_name || 'Tanpa nama'}</div>
-                      <div className="text-xs text-stone-500">{profile.phone} • Role diminta: {profile.role}</div>
+                      <div className="font-semibold text-text">{profile.full_name || 'Tanpa nama'}</div>
+                      <div className="text-xs text-text-muted">{profile.phone} • Role diminta: {profile.role}</div>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => approve(profile)}
                         disabled={busyId === profile.id}
-                        className="inline-flex items-center gap-1 rounded-xl bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-800 disabled:opacity-60"
+                        className="inline-flex items-center gap-1 rounded-xl bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-800 disabled:opacity-60 dark:bg-emerald-600 dark:hover:bg-emerald-500"
                       >
                         <Check className="h-3.5 w-3.5" /> Approve
                       </button>
                       <button
                         onClick={() => reject(profile)}
                         disabled={busyId === profile.id}
-                        className="inline-flex items-center gap-1 rounded-xl border border-rose-300 bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 disabled:opacity-60"
+                        className="inline-flex items-center gap-1 rounded-xl border border-rose-300 bg-surface-2 px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 disabled:opacity-60 dark:border-rose-900/50 dark:text-rose-400 dark:hover:bg-rose-950/30"
                       >
                         <X className="h-3.5 w-3.5" /> Tolak
                       </button>
@@ -133,23 +133,23 @@ export default function UnitsManager({ session }) {
                   </div>
 
                   {isExisting ? (
-                    <div className="text-sm text-stone-700">Meminta akses ke unit: <span className="font-semibold">{unitNameFor(profile.requested_unit_id)}</span></div>
+                    <div className="text-sm text-text">Meminta akses ke unit: <span className="font-semibold">{unitNameFor(profile.requested_unit_id)}</span></div>
                   ) : (
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       <div>
-                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">Nama Unit Baru</label>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-text-muted">Nama Unit Baru</label>
                         <input
                           value={draft.name}
                           onChange={(event) => updateDraft(profile.id, { name: event.target.value })}
-                          className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500"
+                          className="w-full rounded-xl border border-border-subtle bg-surface-2 px-3 py-2 text-sm outline-none focus:border-gold-500"
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">Tipe Unit</label>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-text-muted">Tipe Unit</label>
                         <input
                           value={draft.type}
                           onChange={(event) => updateDraft(profile.id, { type: event.target.value })}
-                          className="w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500"
+                          className="w-full rounded-xl border border-border-subtle bg-surface-2 px-3 py-2 text-sm outline-none focus:border-gold-500"
                         />
                       </div>
                     </div>
@@ -162,27 +162,29 @@ export default function UnitsManager({ session }) {
       </div>
 
       <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-4">
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama unit" className="rounded-lg border px-3 py-2" />
-        <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Kode (unik)" className="rounded-lg border px-3 py-2" />
-        <input value={type} onChange={(e) => setType(e.target.value)} placeholder="Tipe (opsional)" className="rounded-lg border px-3 py-2" />
-        <button onClick={handleCreate} className="flex items-center justify-center gap-2 rounded-lg bg-emerald-700 px-3 py-2 text-white hover:bg-emerald-800"><Plus className="h-4 w-4" />Buat Unit</button>
+        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama unit" className="rounded-lg border border-border-subtle bg-surface-2 px-3 py-2 text-text outline-none focus:border-gold-500" />
+        <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Kode (unik)" className="rounded-lg border border-border-subtle bg-surface-2 px-3 py-2 text-text outline-none focus:border-gold-500" />
+        <input value={type} onChange={(e) => setType(e.target.value)} placeholder="Tipe (opsional)" className="rounded-lg border border-border-subtle bg-surface-2 px-3 py-2 text-text outline-none focus:border-gold-500" />
+        <button onClick={handleCreate} className="flex items-center justify-center gap-2 rounded-lg bg-ink px-3 py-2 text-white hover:bg-ink-2"><Plus className="h-4 w-4" />Buat Unit</button>
       </div>
 
-      {loading ? <div className="text-sm text-stone-400">Loading…</div> : (
+      {loading ? <div className="text-sm text-text-muted">Loading…</div> : (
         <div className="space-y-2">
           {units.map((u) => (
-            <div key={u.id} className="flex items-center justify-between rounded-lg border bg-white p-3">
+            <div key={u.id} className="flex items-center justify-between rounded-lg border border-border-subtle bg-surface-2 p-3">
               <div className="flex items-center gap-2">
-                {u.is_toko && <Store className="h-4 w-4 text-amber-600" title="Toko Bumdes" />}
+                {u.is_toko && <Store className="h-4 w-4 text-gold-600 dark:text-gold-400" title="Toko Bumdes" />}
                 <div>
-                  <div className="font-semibold text-stone-800">{u.name}</div>
-                  <div className="text-xs text-stone-500">
+                  <div className="font-semibold text-text">{u.name}</div>
+                  <div className="text-xs text-text-muted">
                     {u.code} {u.type ? `• ${u.type}` : ''} — {u.is_active ? 'Active' : 'Inactive'}
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={() => toggleActive(u.id, u.is_active)} className="rounded border px-2 py-1 text-sm">{u.is_active ? 'Disable' : 'Enable'}</button>
+                <button onClick={() => toggleActive(u.id, u.is_active)} className="rounded border border-border-subtle px-2 py-1 text-sm text-text hover:bg-surface">
+                  {u.is_active ? 'Disable' : 'Enable'}
+                </button>
               </div>
             </div>
           ))}
