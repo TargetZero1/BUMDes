@@ -404,8 +404,6 @@ export default function App() {
     }));
   });
 
-  const handleReset = () => replaceAllData({ kasUnit: { debit: [], kredit: [] }, gudang: [] });
-
   const navGroups = useMemo(() => {
     const mainItems = [{ key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard }];
     if (isOperator) mainItems.push({ key: 'kasUmum', label: 'Kas Umum BUMDes', icon: Wallet });
@@ -612,6 +610,7 @@ export default function App() {
             </div>
           )}
 
+          <div key={tab} className="animate-fade-in">
           {tab === 'dashboard' && (
             <Suspense fallback={<TabFallback />}>
               <Dashboard
@@ -710,13 +709,14 @@ export default function App() {
 
           {tab === 'importExport' && (!overviewOnly ? (
             <Suspense fallback={<TabFallback />}>
-              <ImportExportSection data={data} onImportReplace={replaceAllData} onReset={handleReset} computeRingkasan={computeRingkasan} profile={profile} selectedUnitId={selectedUnitId} currentUnitLabel={currentUnitLabel} session={session} />
+              <ImportExportSection data={data} onImportReplace={replaceAllData} computeRingkasan={computeRingkasan} profile={profile} selectedUnitId={selectedUnitId} currentUnitLabel={currentUnitLabel} session={session} />
             </Suspense>
           ) : (
             <div className="rounded-2xl border border-dashed border-border-subtle bg-surface-2 p-6 text-sm text-text-muted">
               Pilih satu unit di header untuk impor / ekspor data.
             </div>
           ))}
+          </div>
         </main>
 
         <footer className="mx-auto w-full max-w-6xl px-4 py-6 text-center text-xs text-text-muted lg:px-8">

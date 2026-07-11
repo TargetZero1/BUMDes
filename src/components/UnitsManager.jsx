@@ -185,7 +185,7 @@ export default function UnitsManager({ session }) {
           {units.map((u) => (
             <div key={u.id} className="flex items-center justify-between rounded-lg border border-border-subtle bg-surface-2 p-3">
               <div className="flex items-center gap-2">
-                {u.is_toko && <Store className="h-4 w-4 text-gold-600 dark:text-gold-400" title="Toko Bumdes" />}
+                {u.is_toko && <Store className="h-4 w-4 text-gold-600 dark:text-gold-400" title="Toko BUMDes" />}
                 <div>
                   <div className="font-semibold text-text">{u.name}</div>
                   <div className="text-xs text-text-muted">

@@ -31,8 +31,8 @@ export default function Dashboard({ kasUmumTotals, kasUnitTotals, unitLabel, gra
   const pengeluaranDelta = monthOverMonthDelta(monthlyData, 'pengeluaran');
 
   const chart = isDark
-    ? { grid: '#24344e', axis: '#94a3b8', tooltipBorder: '#24344e', tooltipBg: '#13233a', tooltipText: '#e2e8f0', pemasukan: '#34d399', pengeluaran: '#fb7185' }
-    : { grid: '#e2e8f0', axis: '#64748b', tooltipBorder: '#e2e8f0', tooltipBg: '#ffffff', tooltipText: '#0f172a', pemasukan: '#059669', pengeluaran: '#be123c' };
+    ? { grid: '#24344e', axis: '#94a3b8', tooltipBorder: '#24344e', tooltipBg: '#13233a', tooltipText: '#e2e8f0', pemasukan: '#34d399', pengeluaran: '#fb7185', cursorFill: 'rgba(148, 163, 184, 0.08)' }
+    : { grid: '#e2e8f0', axis: '#64748b', tooltipBorder: '#e2e8f0', tooltipBg: '#ffffff', tooltipText: '#0f172a', pemasukan: '#059669', pengeluaran: '#be123c', cursorFill: 'rgba(100, 116, 139, 0.08)' };
 
   const cards = [
     kasUmumTotals ? { key: 'umum', icon: Wallet, title: 'Kas Umum BUMDes', totals: kasUmumTotals } : null,
@@ -139,6 +139,7 @@ export default function Dashboard({ kasUmumTotals, kasUnitTotals, unitLabel, gra
                 <Tooltip
                   formatter={(value) => formatRupiah(value)}
                   contentStyle={{ borderRadius: 12, border: `1px solid ${chart.tooltipBorder}`, background: chart.tooltipBg, color: chart.tooltipText }}
+                  cursor={{ fill: chart.cursorFill }}
                 />
                 <Legend />
                 <Bar dataKey="pemasukan" name="Pemasukan" fill={chart.pemasukan} radius={[6, 6, 0, 0]} />

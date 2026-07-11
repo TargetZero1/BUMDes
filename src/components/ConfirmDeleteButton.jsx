@@ -12,8 +12,8 @@ export default function ConfirmDeleteButton({ onConfirm, title = 'Hapus data ini
       </button>
       {open &&
         createPortal(
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setOpen(false)}>
-            <div className="w-full max-w-sm rounded-2xl bg-surface-2 p-6 text-left shadow-xl" onClick={(event) => event.stopPropagation()}>
+          <div className="animate-fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setOpen(false)}>
+            <div className="animate-scale-in w-full max-w-sm rounded-2xl bg-surface-2 p-6 text-left shadow-xl" onClick={(event) => event.stopPropagation()}>
               <h3 className="mb-2 font-bold text-text">{title}</h3>
               <p className="mb-4 text-sm text-text-muted">{description}</p>
               <div className="flex justify-end gap-2">

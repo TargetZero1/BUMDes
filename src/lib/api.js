@@ -90,11 +90,3 @@ export async function sbPatch(table, id, patchBody, { accessToken, select } = {}
   if (!response.ok) await throwApiError(response, `Gagal update ${table}`);
   return response.json();
 }
-
-export async function sbDeleteAll(table, { accessToken } = {}) {
-  const response = await fetch(`${REST}/${table}?id=not.is.null`, {
-    method: 'DELETE',
-    headers: sbHeaders(accessToken),
-  });
-  if (!response.ok) await throwApiError(response, `Gagal reset ${table}`);
-}

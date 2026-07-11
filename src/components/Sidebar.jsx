@@ -14,6 +14,15 @@ export default function Sidebar({ navGroups, tab, onTabChange, profile, navOpen,
 
   const handleThemeToggle = () => setTheme(toggleTheme());
 
+  useEffect(() => {
+    if (!navOpen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [navOpen]);
+
   const renderItems = (items, onSelect, collapsedMode) =>
     items.map((item) => {
       const Icon = item.icon;
@@ -131,8 +140,8 @@ export default function Sidebar({ navGroups, tab, onTabChange, profile, navOpen,
 
       {navOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={onNavToggle} />
-          <aside className="bg-seal-pattern absolute left-0 top-0 h-full w-72 bg-linear-to-b from-ink to-ink-2 shadow-2xl">
+          <div className="animate-fade-in fixed inset-0 bg-black/50" onClick={onNavToggle} />
+          <aside className="bg-seal-pattern animate-slide-in-left fixed inset-y-0 left-0 h-dvh w-72 bg-linear-to-b from-ink to-ink-2 shadow-2xl">
             <button
               type="button"
               onClick={onNavToggle}

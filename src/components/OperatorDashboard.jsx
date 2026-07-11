@@ -40,7 +40,7 @@ export default function OperatorDashboard({ session }) {
             <div key={unit.unit_id} className="rounded-2xl border border-border-subtle bg-surface-2 p-4 shadow-sm ring-1 ring-black/5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  {unit.is_toko && <Store className="h-4 w-4 text-gold-600 dark:text-gold-400" title="Toko Bumdes" />}
+                  {unit.is_toko && <Store className="h-4 w-4 text-gold-600 dark:text-gold-400" title="Toko BUMDes" />}
                   <div>
                     <div className="font-semibold text-text">
                       {unit.unit_name}

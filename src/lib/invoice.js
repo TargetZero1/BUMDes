@@ -325,7 +325,7 @@ export async function generateUnitOverviewPDF(unit, issuerName) {
     [
       ['Tanggal Laporan:', formatTanggal(today)],
       ['Update Terakhir:', unit.last_updated ? formatTanggal(unit.last_updated) : '-'],
-      ['Status:', unit.is_toko ? 'Toko Bumdes' : 'Unit Aktif'],
+      ['Status:', unit.is_toko ? 'Toko BUMDes' : 'Unit Aktif'],
     ]
   );
 
@@ -344,8 +344,13 @@ export async function generateUnitOverviewPDF(unit, issuerName) {
   y += 30;
   y = drawTotalBar(doc, y, 'TOTAL ASET', bersihKas + (unit.nilai_gudang || 0));
 
+  const signerRoleLabel = unit.is_toko ? 'Direktur,' : 'Operator Unit,';
+  const signerName = unit.is_toko
+    ? (unit.direktur_name || issuerName)
+    : (unit.owner_name || issuerName);
+
   y += 40;
-  y = drawSignature(doc, y, 'Malang', today, 'Operator BUMDes,', issuerName);
+  y = drawSignature(doc, y, 'Malang', today, signerRoleLabel, signerName);
 
   drawFooterBar(doc, Math.max(y + 30, 760), 'Laporan ini dibuat otomatis oleh sistem Buku Kas BUMDes Mulyoarjo.');
 
