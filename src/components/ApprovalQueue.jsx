@@ -19,7 +19,7 @@ export default function ApprovalQueue({ session, profile, units }) {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await sbRpc('list_pengeluaran_unit', { p_caller_id: session?.user?.id || null, p_unit_id: null }, { accessToken: session?.access_token });
+      const data = await sbRpc('list_pengeluaran_unit', { p_unit_id: null }, { accessToken: session?.access_token });
       setRows(data || []);
     } catch (err) {
       console.error('Failed load transfers', err);
@@ -27,7 +27,7 @@ export default function ApprovalQueue({ session, profile, units }) {
     } finally {
       setLoading(false);
     }
-  }, [session?.access_token, session?.user?.id]);
+  }, [session?.access_token]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -39,7 +39,7 @@ export default function ApprovalQueue({ session, profile, units }) {
   const handleApprove = async (row) => {
     setBusyId(row.id);
     try {
-      await sbRpc(APPROVE_RPC[role], { p_caller_id: session?.user?.id || null, p_transfer_id: row.id }, { accessToken: session?.access_token });
+      await sbRpc(APPROVE_RPC[role], { p_transfer_id: row.id }, { accessToken: session?.access_token });
       showNotice('success', 'Pembayaran disetujui.');
       await load();
     } catch (err) {
@@ -53,7 +53,7 @@ export default function ApprovalQueue({ session, profile, units }) {
     const reason = window.prompt('Alasan penolakan (opsional):') || null;
     setBusyId(row.id);
     try {
-      await sbRpc('reject_transfer', { p_caller_id: session?.user?.id || null, p_transfer_id: row.id, p_reason: reason }, { accessToken: session?.access_token });
+      await sbRpc('reject_transfer', { p_transfer_id: row.id, p_reason: reason }, { accessToken: session?.access_token });
       showNotice('success', 'Pembayaran ditolak.');
       await load();
     } catch (err) {

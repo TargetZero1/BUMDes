@@ -12,7 +12,7 @@ export default function AuthPanel({ units, busy, message, mode, onModeChange, on
     customUnitType: '',
   });
 
-  const unitOptions = useMemo(() => units ?? [], [units]);
+  const unitOptions = useMemo(() => (units ?? []).filter((unit) => unit.code !== 'pusat'), [units]);
 
   const submit = async (event) => {
     event.preventDefault();

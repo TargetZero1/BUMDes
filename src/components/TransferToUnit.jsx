@@ -26,7 +26,7 @@ export default function TransferToUnit({ session, profile, units, canSend, curre
     try {
       const data = await sbRpc(
         'list_pengeluaran_unit',
-        { p_caller_id: session?.user?.id || null, p_unit_id: canSend ? null : currentUnitId },
+        { p_unit_id: canSend ? null : currentUnitId },
         { accessToken: session?.access_token }
       );
       setRows(data || []);
@@ -36,7 +36,7 @@ export default function TransferToUnit({ session, profile, units, canSend, curre
     } finally {
       setLoading(false);
     }
-  }, [session?.access_token, session?.user?.id, canSend, currentUnitId]);
+  }, [session?.access_token, canSend, currentUnitId]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -49,7 +49,6 @@ export default function TransferToUnit({ session, profile, units, canSend, curre
           p_amount: Number(values.jumlah) || 0,
           p_tanggal: values.tanggal,
           p_description: values.uraian,
-          p_created_by: session?.user?.id || null,
           p_bank_name: values.bankName || null,
           p_account_number: values.accountNumber || null,
         },

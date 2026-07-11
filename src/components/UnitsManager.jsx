@@ -65,7 +65,6 @@ export default function UnitsManager({ session }) {
     try {
       const draft = draftFor(profile);
       await sbRpc('approve_unit_request', {
-        p_caller_id: session?.user?.id || null,
         p_profile_id: profile.id,
         p_unit_name: profile.requested_unit_id ? null : draft.name,
         p_unit_type: profile.requested_unit_id ? null : draft.type,
@@ -81,7 +80,7 @@ export default function UnitsManager({ session }) {
   const reject = async (profile) => {
     setBusyId(profile.id);
     try {
-      await sbRpc('reject_unit_request', { p_caller_id: session?.user?.id || null, p_profile_id: profile.id }, { accessToken: session?.access_token });
+      await sbRpc('reject_unit_request', { p_profile_id: profile.id }, { accessToken: session?.access_token });
       await load();
     } catch (err) {
       console.error(err);
