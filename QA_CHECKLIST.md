@@ -27,7 +27,7 @@ Purpose: manual and automated checks to validate key flows and requirements befo
 4) Data Integrity
 - [ ] After import/replace, totals per kas/gudang match expected sums.
 - [ ] Timestamps, created_by fields set correctly to importing user.
-- [ ] Edge cases: missing columns, extra columns, blank rows handled gracefully.
+- [x] Edge cases: missing columns, extra columns, blank rows handled gracefully. (covered by `tests/unit/excel.test.js`, 2026-07-11)
 
 5) Operator Dashboard
 - [ ] Operator can access `OperatorDashboard` and view unit summaries.
