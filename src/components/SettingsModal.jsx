@@ -3,7 +3,7 @@ import { Loader2, Settings, X } from 'lucide-react';
 import { updateOwnProfile } from '../lib/auth';
 import { ROLE_LABELS } from '../lib/constants';
 
-export default function SettingsModal({ profile, onClose, onSaved }) {
+export default function SettingsModal({ profile, session, onClose, onSaved }) {
   const [fullName, setFullName] = useState(profile?.full_name || '');
   const [phone, setPhone] = useState(profile?.phone || '');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -34,6 +34,7 @@ export default function SettingsModal({ profile, onClose, onSaved }) {
         phone: phone.trim(),
         currentPassword: newPassword ? currentPassword : undefined,
         newPassword: newPassword || undefined,
+        accessToken: session?.access_token,
       });
       setNotice({ type: 'success', text: 'Perubahan berhasil disimpan.' });
       setCurrentPassword('');

@@ -3,6 +3,7 @@ import { Check, X } from 'lucide-react';
 import { sbRpc } from '../lib/api';
 import { formatRupiah, formatTanggal } from '../lib/formatters';
 import { TRANSFER_STATUS_LABELS } from '../lib/constants';
+import { subscribeTableRealtime } from '../lib/realtime';
 
 const STAGE_STATUS = { bendahara: 'menunggu_bendahara', direktur: 'menunggu_direktur' };
 const APPROVE_RPC = { bendahara: 'bendahara_approve_transfer', direktur: 'direktur_approve_transfer' };
@@ -30,6 +31,9 @@ export default function ApprovalQueue({ session, profile, units }) {
   }, [session?.access_token]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Any transfer submitted/approved/rejected by anyone should show up here live.
+  useEffect(() => subscribeTableRealtime('approval-queue-realtime', 'pengeluaran_unit', null, load), [load]);
 
   const showNotice = (type, text) => {
     setNotice({ type, text });

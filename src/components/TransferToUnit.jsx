@@ -5,6 +5,7 @@ import TxTable from './TxTable';
 import { sbRpc } from '../lib/api';
 import { formatRupiah, formatTanggal } from '../lib/formatters';
 import { BANK_LIST, TRANSFER_STATUS_LABELS } from '../lib/constants';
+import { subscribeTableRealtime } from '../lib/realtime';
 
 const STATUS_BADGE_CLASS = {
   approved: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300',
@@ -39,6 +40,18 @@ export default function TransferToUnit({ session, profile, units, canSend, curre
   }, [session?.access_token, canSend, currentUnitId]);
 
   useEffect(() => { load(); }, [load]);
+
+  // A Bendahara/Direktur approving or rejecting this transfer elsewhere should
+  // update the Riwayat Transfer table here live.
+  useEffect(() => {
+    if (!canSend && !currentUnitId) return undefined;
+    return subscribeTableRealtime(
+      `transfer-to-unit-realtime-${canSend ? 'all' : currentUnitId}`,
+      'pengeluaran_unit',
+      canSend ? null : `unit_id=eq.${currentUnitId}`,
+      load
+    );
+  }, [load, canSend, currentUnitId]);
 
   const handleSend = async (values) => {
     try {

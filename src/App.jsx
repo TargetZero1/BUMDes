@@ -9,7 +9,8 @@ import { buildGudangAlerts, buildMonthlyData, computeConsolidatedRingkasan, comp
 import { emptyData, rowToEntry, rowToGudang } from './lib/data';
 import { formatRupiah } from './lib/formatters';
 import { dbSignIn, dbSignUp } from './lib/auth';
-import { subscribeGudangRealtime } from './lib/realtime';
+import { subscribeGudangRealtime, subscribeTableRealtime } from './lib/realtime';
+import { supabase } from './lib/supabaseClient';
 import { clearSession, loadSession, saveSession } from './lib/session';
 
 const Dashboard = lazy(() => import('./components/Dashboard'));
@@ -180,6 +181,20 @@ export default function App() {
     setLoaded(true);
   }, []);
 
+  // The `supabase` client (used only for Realtime) is created with the static
+  // anon key and never learns about the real per-user session minted by
+  // dbSignIn -- REST calls attach that token manually per-request (see
+  // sbHeaders), but Realtime's server-side RLS check runs against whatever
+  // JWT is set on this client's own session. Without this, every Realtime
+  // connection is anonymous and RLS silently drops every event.
+  useEffect(() => {
+    if (session?.access_token && session?.refresh_token) {
+      supabase.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token });
+    } else {
+      supabase.auth.signOut();
+    }
+  }, [session?.access_token, session?.refresh_token]);
+
   useEffect(() => {
     if (!session) {
       setProfile(null);
@@ -256,6 +271,28 @@ export default function App() {
     });
     return unsubscribe;
   }, [session, profile, currentUnitId, refreshData]);
+
+  // Ledgers/kas/units are shared, cross-user data -- any insert/update/delete by
+  // anyone (a transfer approval, a unit being added, etc.) should be reflected
+  // for every connected client without them having to hit refresh.
+  useEffect(() => {
+    if (!session || !profile || profile.status !== 'approved') return undefined;
+    const tables = ['ledger_debit', 'ledger_kredit', 'kas_umum_debit', 'kas_umum_kredit', 'units'];
+    const unsubscribes = tables.map((table) =>
+      subscribeTableRealtime(`${table}-realtime`, table, null, () => refreshData())
+    );
+    return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
+  }, [session, profile, refreshData]);
+
+  // Keep the signed-in user's own profile (name, phone, role, status) live --
+  // e.g. a Pengaturan Akun change from another tab/device, or an operator
+  // approving this account, should reflect here without a manual refresh.
+  useEffect(() => {
+    if (!session || !profile?.id) return undefined;
+    return subscribeTableRealtime(`own-profile-realtime-${profile.id}`, 'profiles', `id=eq.${profile.id}`, () => {
+      loadProfile(session.user.id, session.access_token, session.user);
+    });
+  }, [session, profile?.id, loadProfile]);
 
   const handleLogin = async ({ phone, password }) => {
     setAuthBusy(true);
@@ -493,6 +530,7 @@ export default function App() {
       {settingsOpen && (
         <SettingsModal
           profile={profile}
+          session={session}
           onClose={() => setSettingsOpen(false)}
           onSaved={(updated) => setProfile((current) => ({ ...current, ...updated }))}
         />

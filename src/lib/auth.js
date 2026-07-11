@@ -30,7 +30,7 @@ export async function dbSignUp({ fullName, phone, password, requested_unit_id = 
   return { user: profile, access_token: SUPABASE_KEY };
 }
 
-export async function updateOwnProfile({ profileId, currentPhone, fullName, phone, currentPassword, newPassword }) {
+export async function updateOwnProfile({ profileId, currentPhone, fullName, phone, currentPassword, newPassword, accessToken }) {
   const patch = {};
   if (fullName !== undefined && fullName !== null) patch.full_name = fullName;
   if (phone !== undefined && phone !== null && phone !== currentPhone) patch.phone = phone;
@@ -46,8 +46,13 @@ export async function updateOwnProfile({ profileId, currentPhone, fullName, phon
 
   if (Object.keys(patch).length === 0) return null;
 
-  const rows = await sbPatch('profiles', profileId, patch, { select: 'id,full_name,phone,role,unit_id,status,can_view_all' });
-  return rows?.[0] ?? null;
+  // profiles' RLS UPDATE policy only allows a caller to touch their own row
+  // (matched via auth_user_id = auth.uid()) -- without the real per-user
+  // access_token here, this call runs as anon, matches zero rows, and
+  // PostgREST returns [] rather than an error, silently no-opping the save.
+  const rows = await sbPatch('profiles', profileId, patch, { accessToken, select: 'id,full_name,phone,role,unit_id,status,can_view_all' });
+  if (!rows?.length) throw new Error('Gagal menyimpan perubahan (sesi kedaluwarsa atau tidak diizinkan).');
+  return rows[0];
 }
 
 // db-sign-in Edge Function bridges this app's custom phone+password_hash auth to a

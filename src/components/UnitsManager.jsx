@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { sbSelect, sbInsert, sbPatch, sbRpc } from '../lib/api';
 import { Plus, Check, X, Store } from 'lucide-react';
+import { subscribeTableRealtime } from '../lib/realtime';
 
 export default function UnitsManager({ session }) {
   const [units, setUnits] = useState([]);
@@ -32,6 +33,17 @@ export default function UnitsManager({ session }) {
   };
 
   useEffect(() => { load(); }, [session?.access_token]);
+
+  // New signups, unit changes, or another admin approving/rejecting a pending
+  // account should show up here live.
+  useEffect(() => {
+    const unsubUnits = subscribeTableRealtime('units-manager-units-realtime', 'units', null, load);
+    const unsubProfiles = subscribeTableRealtime('units-manager-profiles-realtime', 'profiles', null, load);
+    return () => {
+      unsubUnits();
+      unsubProfiles();
+    };
+  }, [session?.access_token]);
 
   const handleCreate = async () => {
     if (!name.trim() || !code.trim()) return;
