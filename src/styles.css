@@ -19,6 +19,7 @@ body,
 body {
   margin: 0;
   background: transparent;
+  overflow-x: hidden;
 }
 
 button,

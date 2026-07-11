@@ -37,6 +37,15 @@ export const ROLE_LABELS = {
   unit_admin: 'Admin Unit',
   staff: 'Staf',
   viewer: 'Viewer',
+  bendahara: 'Bendahara',
+  direktur: 'Direktur',
+};
+
+export const TRANSFER_STATUS_LABELS = {
+  menunggu_bendahara: 'Menunggu Bendahara',
+  menunggu_direktur: 'Menunggu Direktur',
+  approved: 'Disetujui',
+  ditolak: 'Ditolak',
 };
 
 export const TABLE_MAP = {

@@ -39,7 +39,7 @@ export default function Sidebar({ navGroups, tab, onTabChange, profile, navOpen,
         )}
       </div>
 
-      <nav className="flex-1 space-y-5 overflow-y-auto overflow-x-hidden px-3 py-2">
+      <nav className="space-y-5 overflow-y-auto overflow-x-hidden px-3 py-2">
         {navGroups.map((group) => (
           <div key={group.label}>
             {!collapsedMode && <p className="mb-1.5 px-3 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-400/70">{group.label}</p>}
@@ -47,6 +47,10 @@ export default function Sidebar({ navGroups, tab, onTabChange, profile, navOpen,
           </div>
         ))}
       </nav>
+
+      <div className="flex flex-1 items-center justify-center">
+        {!collapsedMode && <EmblemBadge className="h-32 w-32 opacity-[0.06]" />}
+      </div>
 
       <div className={`border-t border-white/10 px-4 py-4 ${collapsedMode ? 'px-2' : ''}`}>
         <button
@@ -94,15 +98,17 @@ export default function Sidebar({ navGroups, tab, onTabChange, profile, navOpen,
       </aside>
 
       {/* Mobile top bar trigger */}
-      <button
-        type="button"
-        onClick={onNavToggle}
-        className="fixed left-3 top-3 z-50 inline-flex items-center justify-center rounded-lg border border-emerald-700/60 bg-emerald-950 p-2 text-emerald-100 shadow-lg lg:hidden"
-        aria-label="Buka menu navigasi"
-        aria-expanded={navOpen}
-      >
-        <Menu className="h-5 w-5" />
-      </button>
+      {!navOpen && (
+        <button
+          type="button"
+          onClick={onNavToggle}
+          className="fixed left-3 top-3 z-50 inline-flex items-center justify-center rounded-lg border border-emerald-700/60 bg-emerald-950 p-2 text-emerald-100 shadow-lg lg:hidden"
+          aria-label="Buka menu navigasi"
+          aria-expanded={navOpen}
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+      )}
 
       {navOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">

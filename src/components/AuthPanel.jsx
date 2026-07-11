@@ -33,30 +33,17 @@ export default function AuthPanel({ units, busy, message, mode, onModeChange, on
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.14),transparent_36%),linear-gradient(180deg,#f8fafc_0%,#f5f5f4_100%)] px-4 py-10 text-stone-800">
       <div className="mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="rounded-4xl bg-emerald-950 px-6 py-8 text-white shadow-2xl shadow-emerald-950/20 sm:px-8 sm:py-10">
-          <div className="mb-6 inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-100">
-            BUMDes Access Control
-          </div>
-          <h1 className="max-w-lg text-3xl font-bold leading-tight sm:text-4xl" style={{ fontFamily: "'Lora', serif" }}>
-            Satu sistem, banyak unit, role yang jelas.
+        <div className="flex flex-col items-center justify-center rounded-4xl bg-emerald-950 px-6 py-12 text-center text-white shadow-2xl shadow-emerald-950/20 sm:px-8">
+          <EmblemBadge className="h-28 w-28 sm:h-32 sm:w-32" />
+          <h1 className="mt-6 text-3xl font-bold leading-tight sm:text-4xl" style={{ fontFamily: "'Lora', serif" }}>
+            BUMDes Mulyoarjo
           </h1>
-          <p className="mt-4 max-w-xl text-sm leading-6 text-emerald-100/85 sm:text-base">
-            Akun pertama yang mendaftar akan otomatis jadi Super Admin. Setelah itu, user baru masuk status pending dan menunggu approve.
+          <p className="mt-2 max-w-sm text-sm text-emerald-100/80">
+            Ampelgading, Mulyoarjo, Kec. Lawang, Kabupaten Malang, Jawa Timur 65216
           </p>
-
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
-            {[
-              ['Operator', 'Kelola Kas Umum BUMDes, kirim dana ke unit, approve unit baru'],
-              ['Unit Admin', 'Kelola kas dan gudang unit sendiri'],
-              ['Staf', 'Input data sesuai unit yang ditugaskan'],
-              ['Viewer', 'Hanya lihat laporan tanpa edit'],
-            ].map(([title, desc]) => (
-              <div key={title} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p className="text-sm font-semibold text-white">{title}</p>
-                <p className="mt-1 text-sm text-emerald-100/80">{desc}</p>
-              </div>
-            ))}
-          </div>
+          <p className="mt-5 max-w-md text-sm leading-6 text-emerald-100/85 sm:text-base">
+            Sistem pencatatan kas dan keuangan digital BUMDes — kas pusat, kas unit, dan gudang dalam satu tempat.
+          </p>
         </div>
 
         <div className="rounded-4xl border border-stone-200 bg-white p-5 shadow-xl shadow-stone-900/5 sm:p-7">

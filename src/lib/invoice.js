@@ -192,6 +192,25 @@ function drawSignature(doc, y, place, dateStr, roleLabel, name) {
   return y + 80;
 }
 
+function drawSignatureRow(doc, y, place, dateStr, entries) {
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const marginX = 40;
+  const colWidth = (pageWidth - marginX * 2) / entries.length;
+  doc.setTextColor(30, 30, 30);
+  doc.setFontSize(9.5);
+
+  entries.forEach((entry, index) => {
+    const x = marginX + colWidth * index;
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${place}, ${formatTanggal(dateStr)}`, x, y);
+    doc.text(entry.roleLabel, x, y + 14);
+    doc.setFont('helvetica', 'bold');
+    doc.text(entry.name || '-', x, y + 66);
+  });
+
+  return y + 80;
+}
+
 function drawFooterBar(doc, y, text) {
   const pageWidth = doc.internal.pageSize.getWidth();
   const marginX = 40;
@@ -203,7 +222,7 @@ function drawFooterBar(doc, y, text) {
   doc.text(text, marginX + 8, y + 14, { maxWidth: pageWidth - marginX * 2 - 16 });
 }
 
-export async function generateTransferInvoicePDF(transfer, unitName, issuerName) {
+export async function generateTransferInvoicePDF(transfer, unitName, issuerName, bendaharaName, direkturName) {
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const logoDataUrl = await getLogoDataUrl();
   drawWatermark(doc, await getWatermarkDataUrl());
@@ -252,7 +271,10 @@ export async function generateTransferInvoicePDF(transfer, unitName, issuerName)
   y = drawTotalBar(doc, y, 'TOTAL', transfer.amount);
 
   y += 40;
-  y = drawSignature(doc, y, 'Malang', transfer.tanggal, 'Operator BUMDes,', issuerName);
+  y = drawSignatureRow(doc, y, 'Malang', transfer.tanggal, [
+    { roleLabel: 'Bendahara,', name: bendaharaName },
+    { roleLabel: 'Direktur,', name: direkturName },
+  ]);
 
   y += 10;
   doc.setFont('helvetica', 'bold');

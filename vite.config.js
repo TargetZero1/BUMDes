@@ -7,4 +7,16 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
   },
+  build: {
+    chunkSizeWarningLimit: 550,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          supabase: ['@supabase/supabase-js'],
+          recharts: ['recharts'],
+        },
+      },
+    },
+  },
 });

@@ -4,7 +4,14 @@ import EntryForm from './EntryForm';
 import TxTable from './TxTable';
 import { sbRpc } from '../lib/api';
 import { formatRupiah, formatTanggal } from '../lib/formatters';
-import { BANK_LIST } from '../lib/constants';
+import { BANK_LIST, TRANSFER_STATUS_LABELS } from '../lib/constants';
+
+const STATUS_BADGE_CLASS = {
+  approved: 'bg-emerald-100 text-emerald-700',
+  ditolak: 'bg-rose-100 text-rose-700',
+  menunggu_bendahara: 'bg-amber-100 text-amber-700',
+  menunggu_direktur: 'bg-amber-100 text-amber-700',
+};
 
 export default function TransferToUnit({ session, profile, units, canSend, currentUnitId }) {
   const [rows, setRows] = useState([]);
@@ -48,7 +55,7 @@ export default function TransferToUnit({ session, profile, units, canSend, curre
         },
         { accessToken: session?.access_token }
       );
-      setNotice({ type: 'success', text: 'Dana berhasil dikirim ke unit.' });
+      setNotice({ type: 'success', text: 'Permintaan transfer dikirim, menunggu persetujuan Bendahara.' });
       await load();
     } catch (err) {
       setNotice({ type: 'error', text: err.message || 'Gagal kirim dana.' });
@@ -62,6 +69,15 @@ export default function TransferToUnit({ session, profile, units, canSend, curre
     { key: 'description', label: 'Keterangan' },
     { key: 'bank_name', label: 'Bank / Rekening', render: (row) => (row.bank_name ? `${row.bank_name}${row.account_number ? ` — ${row.account_number}` : ''}` : '-') },
     { key: 'amount', label: 'Jumlah', render: (row) => formatRupiah(row.amount) },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (row) => (
+        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_BADGE_CLASS[row.status] || 'bg-stone-100 text-stone-600'}`}>
+          {TRANSFER_STATUS_LABELS[row.status] || row.status}
+        </span>
+      ),
+    },
   ];
 
   return (
@@ -111,18 +127,22 @@ export default function TransferToUnit({ session, profile, units, canSend, curre
               rows={rows.map((row) => ({ ...row, tanggal: row.tanggal }))}
               columns={columns}
               emptyText="Belum ada transfer."
-              renderExtraActions={(row) => (
-                <button
-                  onClick={async () => {
-                    const { generateTransferInvoicePDF } = await import('../lib/invoice');
-                    generateTransferInvoicePDF(row, unitNameFor(row.unit_id), profile?.full_name || 'Operator BUMDes');
-                  }}
-                  className="text-stone-400 transition-colors hover:text-emerald-700"
-                  title="Unduh Invoice PDF"
-                >
-                  <FileDown className="h-4 w-4" />
-                </button>
-              )}
+              renderExtraActions={(row) =>
+                row.status === 'approved' ? (
+                  <button
+                    onClick={async () => {
+                      const { generateTransferInvoicePDF } = await import('../lib/invoice');
+                      generateTransferInvoicePDF(row, unitNameFor(row.unit_id), profile?.full_name || 'Operator BUMDes', row.bendahara_name, row.direktur_name);
+                    }}
+                    className="text-stone-400 transition-colors hover:text-emerald-700"
+                    title="Unduh Invoice PDF"
+                  >
+                    <FileDown className="h-4 w-4" />
+                  </button>
+                ) : (
+                  <FileDown className="h-4 w-4 cursor-not-allowed text-stone-200" title="Invoice tersedia setelah disetujui Direktur" />
+                )
+              }
             />
           )}
         </div>

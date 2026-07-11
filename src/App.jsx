@@ -1,15 +1,8 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
-import { ArrowLeftRight, FileSpreadsheet, LayoutDashboard, RefreshCw, Users, Wallet, Warehouse, Wifi, WifiOff } from 'lucide-react';
+import { ArrowLeftRight, CheckCircle2, FileSpreadsheet, LayoutDashboard, RefreshCw, Users, Wallet, Warehouse, Wifi, WifiOff } from 'lucide-react';
 import AuthPanel from './components/AuthPanel';
-import Dashboard from './components/Dashboard';
-import GudangSection from './components/GudangSection';
-import KasUmumBumdes from './components/KasUmumBumdes';
-import LedgerSection from './components/LedgerSection';
-import OperatorDashboard from './components/OperatorDashboard';
 import SettingsModal from './components/SettingsModal';
 import Sidebar from './components/Sidebar';
-import TransferToUnit from './components/TransferToUnit';
-import UnitsManager from './components/UnitsManager';
 import { KATEGORI_UNIT, ROLE_LABELS, SUMBER_UNIT, TABLE_MAP, UNIT_SCOPE_ALL } from './lib/constants';
 import { sbDelete, sbDeleteWhere, sbInsert, sbSelect } from './lib/api';
 import { buildGudangAlerts, buildMonthlyData, computeConsolidatedRingkasan, computeRingkasan } from './lib/analytics';
@@ -19,7 +12,17 @@ import { dbSignIn, dbSignUp } from './lib/auth';
 import { subscribeGudangRealtime } from './lib/realtime';
 import { clearSession, loadSession, saveSession } from './lib/session';
 
+const Dashboard = lazy(() => import('./components/Dashboard'));
+const ApprovalQueue = lazy(() => import('./components/ApprovalQueue'));
+const GudangSection = lazy(() => import('./components/GudangSection'));
+const KasUmumBumdes = lazy(() => import('./components/KasUmumBumdes'));
+const LedgerSection = lazy(() => import('./components/LedgerSection'));
+const OperatorDashboard = lazy(() => import('./components/OperatorDashboard'));
+const TransferToUnit = lazy(() => import('./components/TransferToUnit'));
+const UnitsManager = lazy(() => import('./components/UnitsManager'));
 const ImportExportSection = lazy(() => import('./components/ImportExportSection'));
+
+const TabFallback = () => <div className="py-8 text-center text-sm text-stone-400">Memuat…</div>;
 
 const UNIT_DATA_TABLES = ['ledger_debit', 'ledger_kredit', 'gudang'];
 
@@ -72,6 +75,7 @@ const PAGE_TITLES = {
   kasUnit: 'Kas Unit',
   gudang: 'Buku Gudang',
   kirimDana: 'Kirim Dana ke Unit',
+  persetujuan: 'Persetujuan Kirim Dana',
   operator: 'Overview Semua Unit',
   units: 'Manage Units',
   importExport: 'Impor / Ekspor',
@@ -95,7 +99,8 @@ export default function App() {
   const [navOpen, setNavOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const isOperator = profile?.role === 'super_admin' || profile?.role === 'operator' || profile?.can_view_all;
+  const isApprover = profile?.role === 'bendahara' || profile?.role === 'direktur';
+  const isOperator = profile?.role === 'super_admin' || profile?.role === 'operator' || profile?.can_view_all || isApprover;
   const selectedUnit = useMemo(() => units.find((unit) => unit.id === selectedUnitId) ?? null, [units, selectedUnitId]);
   const currentUnitId = isOperator ? (selectedUnitId === UNIT_SCOPE_ALL ? null : selectedUnitId) : profile?.unit_id ?? null;
   const currentUnitLabel = selectedUnitId === UNIT_SCOPE_ALL ? 'Semua Unit' : selectedUnit?.name || 'Unit aktif';
@@ -128,7 +133,7 @@ export default function App() {
       const nextProfile = rows?.[0] ?? fallbackProfile ?? null;
       setProfile(nextProfile);
 
-      if (nextProfile?.role === 'super_admin' || nextProfile?.role === 'operator' || nextProfile?.can_view_all) {
+      if (nextProfile?.role === 'super_admin' || nextProfile?.role === 'operator' || nextProfile?.role === 'bendahara' || nextProfile?.role === 'direktur' || nextProfile?.can_view_all) {
         setSelectedUnitId((current) => (current === UNIT_SCOPE_ALL ? UNIT_SCOPE_ALL : current));
       } else if (nextProfile?.unit_id) {
         setSelectedUnitId(nextProfile.unit_id);
@@ -137,7 +142,7 @@ export default function App() {
       const nextProfile = fallbackProfile ?? null;
       setProfile(nextProfile);
 
-      if (nextProfile?.role === 'super_admin' || nextProfile?.role === 'operator' || nextProfile?.can_view_all) {
+      if (nextProfile?.role === 'super_admin' || nextProfile?.role === 'operator' || nextProfile?.role === 'bendahara' || nextProfile?.role === 'direktur' || nextProfile?.can_view_all) {
         setSelectedUnitId((current) => (current === UNIT_SCOPE_ALL ? UNIT_SCOPE_ALL : current));
       } else if (nextProfile?.unit_id) {
         setSelectedUnitId(nextProfile.unit_id);
@@ -375,20 +380,19 @@ export default function App() {
     const groups = [{ label: 'Utama', items: mainItems }];
 
     if (isOperator) {
-      groups.push({
-        label: 'Operator',
-        items: [
-          { key: 'kirimDana', label: 'Kirim Dana ke Unit', icon: ArrowLeftRight },
-          { key: 'operator', label: 'Overview Semua Unit', icon: LayoutDashboard },
-          { key: 'units', label: 'Manage Units', icon: Users },
-        ],
-      });
+      const operatorItems = [
+        { key: 'kirimDana', label: 'Kirim Dana ke Unit', icon: ArrowLeftRight },
+        { key: 'operator', label: 'Overview Semua Unit', icon: LayoutDashboard },
+        { key: 'units', label: 'Manage Units', icon: Users },
+      ];
+      if (isApprover) operatorItems.push({ key: 'persetujuan', label: 'Persetujuan Kirim Dana', icon: CheckCircle2 });
+      groups.push({ label: 'Operator', items: operatorItems });
     }
 
     groups.push({ label: 'Lainnya', items: [{ key: 'importExport', label: 'Impor / Ekspor', icon: FileSpreadsheet }] });
 
     return groups;
-  }, [isOperator, overviewOnly, selectedUnit]);
+  }, [isOperator, isApprover, overviewOnly, selectedUnit]);
 
   const handleTabChange = (key) => {
     setTab(key);
@@ -561,51 +565,57 @@ export default function App() {
           {notice && <div className={`mb-4 rounded-xl px-4 py-2.5 text-sm ${notice.type === 'error' ? 'border border-rose-200 bg-rose-50 text-rose-700' : 'border border-emerald-200 bg-emerald-50 text-emerald-700'}`}>{notice.text}</div>}
 
           {tab === 'dashboard' && (
-            <Dashboard
-              kasUmumTotals={dashboardKasUmumTotals}
-              kasUnitTotals={!overviewOnly ? ringkasan.unit : null}
-              unitLabel={selectedUnit?.name}
-              grandTotals={dashboardGrandTotals}
-              monthlyData={dashboardMonthlyData}
-              gudangAlerts={buildGudangAlerts(data)}
-              unitsCount={activeUnitsCount}
-              isOperator={isOperator}
-              onQuickAction={() => handleTabChange('kirimDana')}
-            />
+            <Suspense fallback={<TabFallback />}>
+              <Dashboard
+                kasUmumTotals={dashboardKasUmumTotals}
+                kasUnitTotals={!overviewOnly ? ringkasan.unit : null}
+                unitLabel={selectedUnit?.name}
+                grandTotals={dashboardGrandTotals}
+                monthlyData={dashboardMonthlyData}
+                gudangAlerts={buildGudangAlerts(data)}
+                unitsCount={activeUnitsCount}
+                isOperator={isOperator}
+                onQuickAction={() => handleTabChange('kirimDana')}
+              />
+            </Suspense>
           )}
 
           {tab === 'kasUmum' && isOperator && (
-            <KasUmumBumdes
-              units={units}
-              kasUmumEntries={data.kasUmum}
-              allUnitsLedger={allUnitsLedger}
-              onAddDebit={(entry) => addEntry('kasUmum', 'debit', entry)}
-              onDeleteDebit={(id) => deleteEntry('kasUmum', 'debit', id)}
-              onAddKredit={(entry) => addEntry('kasUmum', 'kredit', entry)}
-              onDeleteKredit={(id) => deleteEntry('kasUmum', 'kredit', id)}
-            />
+            <Suspense fallback={<TabFallback />}>
+              <KasUmumBumdes
+                units={units}
+                kasUmumEntries={data.kasUmum}
+                allUnitsLedger={allUnitsLedger}
+                onAddDebit={(entry) => addEntry('kasUmum', 'debit', entry)}
+                onDeleteDebit={(id) => deleteEntry('kasUmum', 'debit', id)}
+                onAddKredit={(entry) => addEntry('kasUmum', 'kredit', entry)}
+                onDeleteKredit={(id) => deleteEntry('kasUmum', 'kredit', id)}
+              />
+            </Suspense>
           )}
 
           {tab === 'kasUnit' && (!overviewOnly ? (
-            <div>
-              <LedgerSection
-                title={`Kas Unit — ${selectedUnit?.name || currentUnitLabel}`}
-                subtitle="Kas operasional unit -- bentuk skontro"
-                debitLabel="Sumber Pemasukan"
-                kreditLabel="Kategori Pengeluaran"
-                debitOptions={SUMBER_UNIT}
-                kreditOptions={KATEGORI_UNIT}
-                debitEntries={data.kasUnit.debit}
-                kreditEntries={data.kasUnit.kredit}
-                onAddDebit={(entry) => addEntry('kasUnit', 'debit', entry)}
-                onDeleteDebit={(id) => deleteEntry('kasUnit', 'debit', id)}
-                onAddKredit={(entry) => addEntry('kasUnit', 'kredit', entry)}
-                onDeleteKredit={(id) => deleteEntry('kasUnit', 'kredit', id)}
-              />
-              <div className="mt-6">
-                <TransferToUnit session={session} profile={profile} units={units} canSend={false} currentUnitId={currentUnitId} />
+            <Suspense fallback={<TabFallback />}>
+              <div>
+                <LedgerSection
+                  title={`Kas Unit — ${selectedUnit?.name || currentUnitLabel}`}
+                  subtitle="Kas operasional unit -- bentuk skontro"
+                  debitLabel="Sumber Pemasukan"
+                  kreditLabel="Kategori Pengeluaran"
+                  debitOptions={SUMBER_UNIT}
+                  kreditOptions={KATEGORI_UNIT}
+                  debitEntries={data.kasUnit.debit}
+                  kreditEntries={data.kasUnit.kredit}
+                  onAddDebit={(entry) => addEntry('kasUnit', 'debit', entry)}
+                  onDeleteDebit={(id) => deleteEntry('kasUnit', 'debit', id)}
+                  onAddKredit={(entry) => addEntry('kasUnit', 'kredit', entry)}
+                  onDeleteKredit={(id) => deleteEntry('kasUnit', 'kredit', id)}
+                />
+                <div className="mt-6">
+                  <TransferToUnit session={session} profile={profile} units={units} canSend={false} currentUnitId={currentUnitId} />
+                </div>
               </div>
-            </div>
+            </Suspense>
           ) : (
             <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-6 text-sm text-stone-600">
               Pilih satu unit di header untuk mengelola data kas.
@@ -613,7 +623,9 @@ export default function App() {
           ))}
 
           {tab === 'gudang' && (!overviewOnly ? (
-            <GudangSection entries={data.gudang} onAdd={addGudang} onDelete={deleteGudang} isToko={isToko} unitLabel={selectedUnit?.name} />
+            <Suspense fallback={<TabFallback />}>
+              <GudangSection entries={data.gudang} onAdd={addGudang} onDelete={deleteGudang} isToko={isToko} unitLabel={selectedUnit?.name} />
+            </Suspense>
           ) : (
             <div className="rounded-2xl border border-dashed border-stone-300 bg-white p-6 text-sm text-stone-600">
               Pilih satu unit di header untuk mengelola gudang.
@@ -621,23 +633,35 @@ export default function App() {
           ))}
 
           {tab === 'kirimDana' && isOperator && (
-            <TransferToUnit session={session} profile={profile} units={units} canSend currentUnitId={currentUnitId} />
+            <Suspense fallback={<TabFallback />}>
+              <TransferToUnit session={session} profile={profile} units={units} canSend currentUnitId={currentUnitId} />
+            </Suspense>
           )}
 
           {tab === 'operator' && isOperator && (
-            <div>
-              <OperatorDashboard session={session} />
-            </div>
+            <Suspense fallback={<TabFallback />}>
+              <div>
+                <OperatorDashboard session={session} />
+              </div>
+            </Suspense>
           )}
 
           {tab === 'units' && isOperator && (
-            <div>
-              <UnitsManager session={session} />
-            </div>
+            <Suspense fallback={<TabFallback />}>
+              <div>
+                <UnitsManager session={session} />
+              </div>
+            </Suspense>
+          )}
+
+          {tab === 'persetujuan' && isApprover && (
+            <Suspense fallback={<TabFallback />}>
+              <ApprovalQueue session={session} profile={profile} units={units} />
+            </Suspense>
           )}
 
           {tab === 'importExport' && (!overviewOnly ? (
-            <Suspense fallback={<div className="py-8 text-center text-sm text-stone-400">Memuat…</div>}>
+            <Suspense fallback={<TabFallback />}>
               <ImportExportSection data={data} onImportReplace={replaceAllData} onReset={handleReset} computeRingkasan={computeRingkasan} profile={profile} selectedUnitId={selectedUnitId} currentUnitLabel={currentUnitLabel} session={session} />
             </Suspense>
           ) : (
