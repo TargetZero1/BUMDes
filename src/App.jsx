@@ -8,7 +8,7 @@ import { sbDelete, sbDeleteWhere, sbInsert, sbSelect, setSessionExpiredHandler }
 import { buildGudangAlerts, buildMonthlyData, computeConsolidatedRingkasan, computeRingkasan } from './lib/analytics';
 import { emptyData, rowToEntry, rowToGudang } from './lib/data';
 import { formatRupiah } from './lib/formatters';
-import { dbSignIn, dbSignUp } from './lib/auth';
+import { dbSignIn, dbSignUp, refreshSession } from './lib/auth';
 import { subscribeGudangRealtime, subscribeTableRealtime } from './lib/realtime';
 import { supabase } from './lib/supabaseClient';
 import { clearSession, loadSession, saveSession } from './lib/session';
@@ -350,6 +350,31 @@ export default function App() {
     });
     return () => setSessionExpiredHandler(null);
   }, []);
+
+  // Proactively renew the access token before it expires (Supabase access
+  // tokens last ~1hr) so an active user is never interrupted by the 401
+  // "JWT expired" logout above -- that path stays as the fallback for when
+  // the refresh_token itself is stale (e.g. the user was away for a long
+  // time) or the refresh call fails.
+  useEffect(() => {
+    if (!session?.refresh_token || !session?.expires_at) return undefined;
+
+    const REFRESH_MARGIN_MS = 2 * 60 * 1000;
+    const msUntilRefresh = Math.max(session.expires_at * 1000 - Date.now() - REFRESH_MARGIN_MS, 0);
+
+    const timer = setTimeout(async () => {
+      try {
+        const refreshed = await refreshSession(session.refresh_token);
+        const nextSession = { ...session, ...refreshed };
+        setSession(nextSession);
+        saveSession(nextSession);
+      } catch {
+        handleLogout({ reason: 'Sesi kamu sudah berakhir. Silakan login kembali.' });
+      }
+    }, msUntilRefresh);
+
+    return () => clearTimeout(timer);
+  }, [session?.access_token, session?.refresh_token, session?.expires_at]);
 
   const withErrorHandling = (fn) => async (...args) => {
     try {
