@@ -18,8 +18,6 @@ React + Vite project for bookkeeping, warehouse stock, and Excel import/export.
 
 The app now expects authenticated users, `profiles`, `units`, and unit-scoped business tables in Supabase.
 
-Apply the migration in `supabase/migrations/20260707000000_bumdes_auth_units.sql` to keep the database aligned with the code. It adds the auth trigger, RLS policies, unit seed rows, and the `unit_id` / `created_by` columns used by the app.
-
 ## Auth & Multi-Unit Features
 
 **Implemented:**
@@ -29,25 +27,6 @@ Apply the migration in `supabase/migrations/20260707000000_bumdes_auth_units.sql
 - RLS policies enforce access control at the database layer
 - Overview mode for super admins to view all units
 - Approval-based onboarding (staff accounts pending approval until super admin enables)
-
-**How it works:**
-1. First signup creates a super_admin with `status='approved'` and `can_view_all=true`
-2. Subsequent signups create pending profiles awaiting super-admin approval
-3. Data tables (`kas_umum_debit`, `kas_umum_kredit`, etc.) are unit-scoped via `unit_id` foreign key
-4. RLS policies check `can_access_unit()` function which validates unit membership or super-admin status
-5. App passes user `access_token` to all queries for automatic session-based RLS
-
-**Admin recovery / manual setup:**
-- If the `profiles` table is missing `phone` or `password_hash`, apply `supabase/migrations/20260711070000_profiles_fix_schema.sql`
-- To approve a pending profile and optionally set a password hash, run:
-  ```bash
-  SUPABASE_SERVICE_ROLE_KEY=<service_role_key> node scripts/approve_profile_rest.js "+62882009759102" "NewPassword"
-  ```
-- Omit the password argument if you only need approval:
-  ```bash
-  SUPABASE_SERVICE_ROLE_KEY=<service_role_key> node scripts/approve_profile_rest.js "+62882009759102"
-  ```
-- Do not use a service role key in frontend code; keep it only in local admin scripts or server-side tooling.
 
 ## Free Hosting
 
