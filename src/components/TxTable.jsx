@@ -1,11 +1,26 @@
+import { useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ConfirmDeleteButton from './ConfirmDeleteButton';
 
+const PAGE_SIZE = 10;
+
 export default function TxTable({ rows, columns, onDelete, emptyText, renderExtraActions }) {
+  const [page, setPage] = useState(1);
+
+  const sorted = rows.slice().sort((a, b) => (a.tanggal < b.tanggal ? 1 : -1));
+  const pageCount = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const paged = sorted.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+  // Reset to page 1 whenever the underlying row set changes (filter change, new entry, etc.)
+  useEffect(() => {
+    setPage(1);
+  }, [rows.length]);
+
   if (!rows.length) {
     return <div className="rounded-xl border border-dashed border-border-subtle py-6 text-center text-sm italic text-text-muted">{emptyText}</div>;
   }
 
-  const sorted = rows.slice().sort((a, b) => (a.tanggal < b.tanggal ? 1 : -1));
   const hasActions = Boolean(onDelete || renderExtraActions);
   const [primaryColumn, ...restColumns] = columns;
 
@@ -25,7 +40,7 @@ export default function TxTable({ rows, columns, onDelete, emptyText, renderExtr
             </tr>
           </thead>
           <tbody>
-            {sorted.map((row) => (
+            {paged.map((row) => (
               <tr key={row.id} className="border-t border-border-subtle hover:bg-surface">
                 {columns.map((column) => (
                   <td key={column.key} className="whitespace-nowrap px-3 py-2">
@@ -46,7 +61,7 @@ export default function TxTable({ rows, columns, onDelete, emptyText, renderExtr
 
       {/* Phone: stacked cards instead of a squeezed/scrolling table */}
       <div className="space-y-2 sm:hidden">
-        {sorted.map((row) => (
+        {paged.map((row) => (
           <div key={row.id} className="rounded-xl border border-border-subtle bg-surface-2 p-3">
             <div className="mb-1.5 flex items-start justify-between gap-2">
               <div className="min-w-0 break-words text-sm font-semibold text-text">{primaryColumn.render ? primaryColumn.render(row) : row[primaryColumn.key]}</div>
@@ -68,6 +83,32 @@ export default function TxTable({ rows, columns, onDelete, emptyText, renderExtr
           </div>
         ))}
       </div>
+
+      {pageCount > 1 && (
+        <div className="mt-3 flex items-center justify-between gap-3 text-sm">
+          <span className="text-xs text-text-muted">
+            Halaman {safePage} dari {pageCount} &middot; {sorted.length} transaksi
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={safePage <= 1}
+              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1.5 text-xs font-medium text-text disabled:cursor-not-allowed disabled:opacity-40 hover:bg-surface"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" /> Sebelumnya
+            </button>
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+              disabled={safePage >= pageCount}
+              className="inline-flex items-center gap-1 rounded-lg border border-border-subtle px-2.5 py-1.5 text-xs font-medium text-text disabled:cursor-not-allowed disabled:opacity-40 hover:bg-surface"
+            >
+              Berikutnya <ChevronRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

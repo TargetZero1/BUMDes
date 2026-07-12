@@ -1,5 +1,19 @@
+import { Fragment } from 'react';
 import { TrendingDown, TrendingUp } from 'lucide-react';
 import { formatRupiah } from '../lib/formatters';
+
+// Only allow line breaks at thousands-separator dots, so a long value that
+// doesn't fit drops to a new line as a whole group (e.g. "161.500." | "000")
+// instead of splitting mid-digit.
+function BreakableAmount({ text }) {
+  const parts = String(text).split('.');
+  return parts.map((part, i) => (
+    <Fragment key={i}>
+      {i > 0 && <wbr />}
+      {i > 0 ? `.${part}` : part}
+    </Fragment>
+  ));
+}
 
 export default function StatCard({ label, value, icon: Icon, tone = 'neutral', big = false, delta, subtext, plain = false }) {
   const tones = {
@@ -41,12 +55,12 @@ export default function StatCard({ label, value, icon: Icon, tone = 'neutral', b
       </div>
       <div className="flex flex-wrap items-baseline gap-2">
         <div
-          className={`min-w-0 tabular-nums break-all font-bold ${big ? 'text-lg sm:text-2xl' : 'text-base sm:text-lg'} ${
+          className={`min-w-0 tabular-nums font-bold ${big ? 'text-lg sm:text-2xl' : 'text-base sm:text-lg'} ${
             tone === 'highlight' ? 'text-gold-gradient' : palette.text
           }`}
           style={{ fontFamily: "'JetBrains Mono', monospace" }}
         >
-          {plain ? value : formatRupiah(value)}
+          {plain ? value : <BreakableAmount text={formatRupiah(value)} />}
         </div>
         {hasDelta && (
           <span
