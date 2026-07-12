@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FileDown, Store } from 'lucide-react';
-import { sbSelect } from '../lib/api';
+import { sbRpc } from '../lib/api';
 import { formatRupiah } from '../lib/formatters';
 
 export default function OperatorDashboard({ session }) {
@@ -11,7 +11,7 @@ export default function OperatorDashboard({ session }) {
     if (!session?.access_token) return;
     let active = true;
     setLoading(true);
-    sbSelect('unit_summary', { accessToken: session.access_token, query: 'select=*&order=unit_name.asc' })
+    sbRpc('get_unit_summary', {}, { accessToken: session.access_token })
       .then((data) => { if (active) setRows(data || []); })
       .catch(() => { if (active) setRows([]); })
       .finally(() => { if (active) setLoading(false); });
