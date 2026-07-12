@@ -30,9 +30,8 @@ export const BANK_LIST = [
   'Lainnya',
 ];
 export const UNIT_SCOPE_ALL = 'all';
-export const ROLE_OPTIONS = ['super_admin', 'operator', 'unit_admin', 'staff', 'viewer'];
+export const ROLE_OPTIONS = ['operator', 'unit_admin', 'staff', 'viewer'];
 export const ROLE_LABELS = {
-  super_admin: 'Super Admin',
   operator: 'Operator',
   unit_admin: 'Admin Unit',
   staff: 'Staf',

@@ -101,7 +101,7 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const isApprover = profile?.role === 'bendahara' || profile?.role === 'direktur';
-  const isOperator = profile?.role === 'super_admin' || profile?.role === 'operator' || profile?.can_view_all || isApprover;
+  const isOperator = profile?.role === 'operator' || profile?.can_view_all || isApprover;
   const selectedUnit = useMemo(() => units.find((unit) => unit.id === selectedUnitId) ?? null, [units, selectedUnitId]);
   const currentUnitId = isOperator ? (selectedUnitId === UNIT_SCOPE_ALL ? null : selectedUnitId) : profile?.unit_id ?? null;
   const currentUnitLabel = selectedUnitId === UNIT_SCOPE_ALL ? 'Semua Unit' : selectedUnit?.name || 'Unit aktif';
@@ -134,7 +134,7 @@ export default function App() {
       const nextProfile = rows?.[0] ?? fallbackProfile ?? null;
       setProfile(nextProfile);
 
-      if (nextProfile?.role === 'super_admin' || nextProfile?.role === 'operator' || nextProfile?.role === 'bendahara' || nextProfile?.role === 'direktur' || nextProfile?.can_view_all) {
+      if (nextProfile?.role === 'operator' || nextProfile?.role === 'bendahara' || nextProfile?.role === 'direktur' || nextProfile?.can_view_all) {
         setSelectedUnitId((current) => (current === UNIT_SCOPE_ALL ? UNIT_SCOPE_ALL : current));
       } else if (nextProfile?.unit_id) {
         setSelectedUnitId(nextProfile.unit_id);
@@ -143,7 +143,7 @@ export default function App() {
       const nextProfile = fallbackProfile ?? null;
       setProfile(nextProfile);
 
-      if (nextProfile?.role === 'super_admin' || nextProfile?.role === 'operator' || nextProfile?.role === 'bendahara' || nextProfile?.role === 'direktur' || nextProfile?.can_view_all) {
+      if (nextProfile?.role === 'operator' || nextProfile?.role === 'bendahara' || nextProfile?.role === 'direktur' || nextProfile?.can_view_all) {
         setSelectedUnitId((current) => (current === UNIT_SCOPE_ALL ? UNIT_SCOPE_ALL : current));
       } else if (nextProfile?.unit_id) {
         setSelectedUnitId(nextProfile.unit_id);

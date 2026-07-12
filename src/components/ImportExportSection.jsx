@@ -24,7 +24,7 @@ export default function ImportExportSection({ data, onImportReplace, computeRing
   const [rollbackBusyId, setRollbackBusyId] = useState(null);
 
   const canExport = profile?.role !== 'viewer';
-  const isSuperAdmin = profile?.role === 'super_admin' || profile?.role === 'operator';
+  const isOperatorRole = profile?.role === 'operator';
 
   // Load import history
   useEffect(() => {
@@ -190,7 +190,7 @@ export default function ImportExportSection({ data, onImportReplace, computeRing
           <div className="mb-2 flex items-center gap-2">
             <Download className="h-4 w-4 text-ink dark:text-gold-400" />
             <h3 className="font-semibold text-text">Ekspor</h3>
-            {isSuperAdmin && <span className="text-xs bg-ink/10 text-ink dark:bg-white/10 dark:text-white/80 px-2 py-1 rounded">Semua Unit</span>}
+            {isOperatorRole && <span className="text-xs bg-ink/10 text-ink dark:bg-white/10 dark:text-white/80 px-2 py-1 rounded">Semua Unit</span>}
             {profile?.role === 'unit_admin' && <span className="text-xs bg-gold-500/15 text-gold-700 dark:text-gold-300 px-2 py-1 rounded">Unit Sendiri</span>}
           </div>
           <p className="mb-4 text-sm text-text-muted">
