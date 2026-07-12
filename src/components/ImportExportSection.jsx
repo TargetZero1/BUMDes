@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
-import * as XLSX from 'xlsx';
 import { Download, Eye, FileSpreadsheet, Loader2, Undo2, Upload, AlertCircle, CheckCircle, Lock, History } from 'lucide-react';
-import { buildWorkbook, createEmptyWorkbook, parseImportedWorkbook } from '../lib/excel';
+import { buildWorkbook, createEmptyWorkbook, downloadWorkbook, parseImportedWorkbook } from '../lib/excel';
 import { sbInsert, sbPatch, sbSelect } from '../lib/api';
 import { todayStr } from '../lib/formatters';
 
@@ -78,17 +77,17 @@ export default function ImportExportSection({ data, onImportReplace, computeRing
     }
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (!canExport) return;
-    const workbook = buildWorkbook(data, computeRingkasan, profile, selectedUnitId, currentUnitLabel);
-    XLSX.writeFile(workbook, `BMSA_Export_${todayStr()}_MSA.xlsx`);
+    const workbook = await buildWorkbook(data, computeRingkasan, profile, selectedUnitId, currentUnitLabel);
+    await downloadWorkbook(workbook, `BMSA_Export_${todayStr()}_MSA.xlsx`);
     setMsg({ type: 'success', text: 'File berhasil di-download.' });
     setTimeout(() => setMsg(null), 3000);
   };
 
-  const handleTemplate = () => {
-    const workbook = createEmptyWorkbook(computeRingkasan, profile);
-    XLSX.writeFile(workbook, 'Template_BMSA_MSA.xlsx');
+  const handleTemplate = async () => {
+    const workbook = await createEmptyWorkbook(computeRingkasan, profile);
+    await downloadWorkbook(workbook, 'Template_BMSA_MSA.xlsx');
     setMsg({ type: 'success', text: 'Template kosong berhasil di-download.' });
     setTimeout(() => setMsg(null), 3000);
   };
