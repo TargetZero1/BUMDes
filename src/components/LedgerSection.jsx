@@ -157,22 +157,22 @@ export default function LedgerSection({
             Keuntungan Bersih
           </p>
         </div>
-        <div className="grid grid-cols-3 gap-4 sm:flex sm:gap-8">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:flex sm:gap-8">
           <div className="min-w-0">
             <p className="text-xs text-text-muted">Pemasukan</p>
-            <p className="tabular-nums font-semibold text-text" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            <p className="tabular-nums font-semibold text-text break-words" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               {formatRupiah(totalDebit)}
             </p>
           </div>
           <div className="min-w-0">
             <p className="text-xs text-text-muted">Pengeluaran</p>
-            <p className="tabular-nums font-semibold text-text" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            <p className="tabular-nums font-semibold text-text break-words" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               {formatRupiah(totalKredit)}
             </p>
           </div>
-          <div className="min-w-0 border-l border-border-subtle pl-3 sm:pl-6">
+          <div className="col-span-2 min-w-0 border-t border-border-subtle pt-3 sm:col-span-1 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
             <p className="text-xs text-gold-700 dark:text-gold-400">Saldo</p>
-            <p className="text-gold-gradient tabular-nums text-xl font-bold" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+            <p className="text-gold-gradient tabular-nums text-lg font-bold break-words sm:text-xl" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
               {formatRupiah(bersih)}
             </p>
           </div>
