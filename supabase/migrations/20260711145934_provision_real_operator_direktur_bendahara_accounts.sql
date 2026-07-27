@@ -1,0 +1,31 @@
+-- Replace placeholder Direktur/Bendahara profiles with the real people, and
+-- add the two real operator accounts. Updating the placeholder rows in place
+-- (rather than inserting new ones) preserves any existing pengeluaran_unit
+-- .bendahara_id/.direktur_id references, so past + future invoices pick up
+-- the correct signer name automatically.
+--
+-- REDACTED FOR VERSION CONTROL: the migration that actually ran against
+-- production set real full names, real phone numbers, and real plaintext
+-- passwords (hashed inline via `encode(digest('<plaintext>', 'sha256'), 'hex')`)
+-- for the Direktur, Bendahara, and two Operator accounts. That content must
+-- never be committed to git. The statements below are commented out and use
+-- placeholders only, to preserve the shape/order of what ran without leaking
+-- the sensitive values. The real values are kept out of band by the project
+-- owner.
+
+-- update public.profiles
+-- set full_name = '<REDACTED>',
+--     phone = '<REDACTED>',
+--     password_hash = encode(digest('<REDACTED>', 'sha256'), 'hex')
+-- where role = 'direktur' and full_name = 'Direktur BUMDes';
+
+-- update public.profiles
+-- set full_name = '<REDACTED>',
+--     phone = '<REDACTED>',
+--     password_hash = encode(digest('<REDACTED>', 'sha256'), 'hex')
+-- where role = 'bendahara' and full_name = 'Bendahara BUMDes';
+
+-- insert into public.profiles (full_name, phone, role, status, password_hash)
+-- values
+--   ('<REDACTED>', '<REDACTED>', 'operator', 'approved', encode(digest('<REDACTED>', 'sha256'), 'hex')),
+--   ('<REDACTED>', '<REDACTED>', 'operator', 'approved', encode(digest('<REDACTED>', 'sha256'), 'hex'));
