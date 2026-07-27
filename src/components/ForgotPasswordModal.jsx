@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, MessageCircle, KeyRound, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import { requestPasswordResetOtp, verifyPasswordResetOtp } from '../lib/auth';
+import PasswordInput from './PasswordInput';
 
 export default function ForgotPasswordModal({ onClose }) {
   const [step, setStep] = useState('phone');
@@ -113,23 +114,23 @@ export default function ForgotPasswordModal({ onClose }) {
             </div>
             <div>
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-text-muted">Password Baru</label>
-              <input
-                type="password"
+              <PasswordInput
                 value={newPassword}
                 onChange={(event) => setNewPassword(event.target.value)}
-                className="w-full rounded-2xl border border-border-subtle bg-surface px-4 py-3 text-text outline-none focus:border-gold-500"
+                inputClassName="w-full rounded-2xl border border-border-subtle bg-surface px-4 py-3 text-text outline-none focus:border-gold-500"
                 placeholder="Minimal 6 karakter"
+                autoComplete="new-password"
                 required
               />
             </div>
             <div>
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-text-muted">Konfirmasi Password Baru</label>
-              <input
-                type="password"
+              <PasswordInput
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
-                className="w-full rounded-2xl border border-border-subtle bg-surface px-4 py-3 text-text outline-none focus:border-gold-500"
+                inputClassName="w-full rounded-2xl border border-border-subtle bg-surface px-4 py-3 text-text outline-none focus:border-gold-500"
                 placeholder="Ulangi password baru"
+                autoComplete="new-password"
                 required
               />
             </div>

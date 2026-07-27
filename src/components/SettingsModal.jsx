@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Loader2, Settings, X } from 'lucide-react';
 import { updateOwnProfile } from '../lib/auth';
 import { ROLE_LABELS } from '../lib/constants';
+import PasswordInput from './PasswordInput';
 
 export default function SettingsModal({ profile, session, onClose, onSaved }) {
   const [fullName, setFullName] = useState(profile?.full_name || '');
@@ -93,26 +94,26 @@ export default function SettingsModal({ profile, session, onClose, onSaved }) {
           <div className="border-t border-border-subtle pt-4">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-muted">Ganti Password (opsional)</p>
             <div className="space-y-3">
-              <input
-                type="password"
+              <PasswordInput
                 value={currentPassword}
                 onChange={(event) => setCurrentPassword(event.target.value)}
                 placeholder="Password saat ini"
-                className="w-full rounded-xl border border-border-subtle px-3 py-2 text-sm outline-none focus:border-gold-500"
+                inputClassName="w-full rounded-xl border border-border-subtle px-3 py-2 text-sm outline-none focus:border-gold-500"
+                autoComplete="current-password"
               />
-              <input
-                type="password"
+              <PasswordInput
                 value={newPassword}
                 onChange={(event) => setNewPassword(event.target.value)}
                 placeholder="Password baru"
-                className="w-full rounded-xl border border-border-subtle px-3 py-2 text-sm outline-none focus:border-gold-500"
+                inputClassName="w-full rounded-xl border border-border-subtle px-3 py-2 text-sm outline-none focus:border-gold-500"
+                autoComplete="new-password"
               />
-              <input
-                type="password"
+              <PasswordInput
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
                 placeholder="Konfirmasi password baru"
-                className="w-full rounded-xl border border-border-subtle px-3 py-2 text-sm outline-none focus:border-gold-500"
+                inputClassName="w-full rounded-xl border border-border-subtle px-3 py-2 text-sm outline-none focus:border-gold-500"
+                autoComplete="new-password"
               />
             </div>
           </div>

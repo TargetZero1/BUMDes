@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
-import { ArrowLeftRight, CheckCircle2, FileSpreadsheet, LayoutDashboard, RefreshCw, Users, Wallet, Warehouse, Wifi, WifiOff } from 'lucide-react';
+import { ArrowLeftRight, BarChart3, CheckCircle2, FileSpreadsheet, LayoutDashboard, RefreshCw, Users, Wallet, Warehouse, Wifi, WifiOff } from 'lucide-react';
 import AuthPanel from './components/AuthPanel';
 import SettingsModal from './components/SettingsModal';
 import Sidebar from './components/Sidebar';
@@ -18,6 +18,7 @@ const ApprovalQueue = lazy(() => import('./components/ApprovalQueue'));
 const GudangSection = lazy(() => import('./components/GudangSection'));
 const KasUmumBumdes = lazy(() => import('./components/KasUmumBumdes'));
 const LedgerSection = lazy(() => import('./components/LedgerSection'));
+const RekapKeuangan = lazy(() => import('./components/RekapKeuangan'));
 const OperatorDashboard = lazy(() => import('./components/OperatorDashboard'));
 const TransferToUnit = lazy(() => import('./components/TransferToUnit'));
 const UnitsManager = lazy(() => import('./components/UnitsManager'));
@@ -75,6 +76,7 @@ const PAGE_TITLES = {
   kasUmum: 'Kas Umum BUMDes',
   kasUnit: 'Kas Unit',
   gudang: 'Buku Gudang',
+  rekap: 'Rekap Keuangan',
   kirimDana: 'Kirim Dana ke Unit',
   persetujuan: 'Persetujuan Kirim Dana',
   operator: 'Overview Semua Unit',
@@ -444,6 +446,7 @@ export default function App() {
       mainItems.push({ key: 'kasUnit', label: `Kas Unit${selectedUnit ? ` — ${selectedUnit.name}` : ''}`, icon: Wallet });
       mainItems.push({ key: 'gudang', label: 'Buku Gudang', icon: Warehouse });
     }
+    mainItems.push({ key: 'rekap', label: 'Rekap Keuangan', icon: BarChart3 });
 
     const groups = [{ label: 'Utama', items: mainItems }];
 
@@ -539,6 +542,8 @@ export default function App() {
   const dashboardKasUmumTotals = isOperator ? consolidatedRingkasan : null;
   const dashboardMonthlyData = isOperator ? buildMonthlyData({ kasUmum: data.kasUmum, kasUnit: allUnitsLedger }) : buildMonthlyData(data);
   const activeUnitsCount = units.filter((unit) => unit.is_active).length;
+  const rekapDebit = isOperator ? [...data.kasUmum.debit, ...allUnitsLedger.debit] : data.kasUnit.debit;
+  const rekapKredit = isOperator ? [...data.kasUmum.kredit, ...allUnitsLedger.kredit] : data.kasUnit.kredit;
 
   return (
     <div className="flex min-h-screen bg-surface text-text" style={{ fontFamily: "'Inter', ui-sans-serif, system-ui" }}>
@@ -711,6 +716,12 @@ export default function App() {
               Pilih satu unit di header untuk mengelola gudang.
             </div>
           ))}
+
+          {tab === 'rekap' && (
+            <Suspense fallback={<TabFallback />}>
+              <RekapKeuangan debitEntries={rekapDebit} kreditEntries={rekapKredit} unitLabel={selectedUnit?.name} isOperator={isOperator} />
+            </Suspense>
+          )}
 
           {tab === 'kirimDana' && isOperator && (
             <Suspense fallback={<TabFallback />}>

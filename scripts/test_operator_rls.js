@@ -12,10 +12,15 @@ const fetch = global.fetch || require('node-fetch');
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://jqxwsffybmcdmsepufjs.supabase.co';
 const ANON_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_zWO6W0YibcWTVjgytmv5nw_oiUhjCSV';
-const OPERATOR_PHONE = process.env.OPERATOR_PHONE || '+62882009759102';
-const OPERATOR_PASSWORD = process.env.OPERATOR_PASSWORD || 'Vijay123';
+const OPERATOR_PHONE = process.env.OPERATOR_PHONE;
+const OPERATOR_PASSWORD = process.env.OPERATOR_PASSWORD;
 
 async function main(){
+  if (!OPERATOR_PHONE || !OPERATOR_PASSWORD) {
+    console.error('Set OPERATOR_PHONE and OPERATOR_PASSWORD env vars before running this script.');
+    process.exit(1);
+  }
+
   // Sign in
   const tokenRes = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
     method: 'POST',

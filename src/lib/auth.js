@@ -1,30 +1,21 @@
-import { sbInsert, sbPatch, sbRpc } from './api';
+import { sbPatch, sbRpc } from './api';
 import { SUPABASE_KEY, SUPABASE_URL } from './supabase';
 
-async function hashPassword(password) {
-  const enc = new TextEncoder();
-  const data = enc.encode(password);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-}
-
+// Passwords are never hashed client-side -- the plaintext travels once over
+// HTTPS to a SECURITY DEFINER RPC (db_sign_up/db_sign_in/change_own_password)
+// that hashes/verifies with pgcrypto bcrypt server-side. The previous
+// client-side SHA-256 scheme meant the stored hash itself was a bearer
+// credential: anyone who ever obtained a password_hash row could log in with
+// it directly, no cracking needed.
 export async function dbSignUp({ fullName, phone, password, requested_unit_id = null, requested_unit_name = null, requested_unit_type = null }) {
-  const phoneTaken = await sbRpc('phone_taken', { p_phone: phone });
-  if (phoneTaken) throw new Error('Phone already registered');
-
-  const password_hash = await hashPassword(password);
-  const rows = await sbInsert('profiles', [{
-    phone,
-    full_name: fullName,
-    role: 'staff',
-    status: 'pending',
-    password_hash,
-    requested_unit_id,
-    requested_unit_name,
-    requested_unit_type,
-  }], { select: 'id,full_name,phone,role,unit_id,status,can_view_all,requested_unit_id,requested_unit_name,requested_unit_type' });
-  const profile = rows?.[0] ?? null;
+  const profile = await sbRpc('db_sign_up', {
+    p_phone: phone,
+    p_password: password,
+    p_full_name: fullName,
+    p_requested_unit_id: requested_unit_id,
+    p_requested_unit_name: requested_unit_name,
+    p_requested_unit_type: requested_unit_type,
+  });
   if (!profile) throw new Error('Failed create profile');
 
   return { user: profile, access_token: SUPABASE_KEY };
@@ -37,11 +28,9 @@ export async function updateOwnProfile({ profileId, currentPhone, fullName, phon
 
   if (newPassword) {
     if (!currentPassword) throw new Error('Masukkan password saat ini untuk mengganti password.');
-    const currentHash = await hashPassword(currentPassword);
-    const verifyRows = await sbRpc('db_sign_in', { p_phone: currentPhone, p_password_hash: currentHash });
-    const verified = verifyRows?.[0];
-    if (!verified || verified.id !== profileId) throw new Error('Password saat ini salah.');
-    patch.password_hash = await hashPassword(newPassword);
+    // Verifies the current password and writes the new bcrypt hash entirely
+    // server-side; throws (surfaced as 'Password saat ini salah.') on mismatch.
+    await sbRpc('change_own_password', { p_current_password: currentPassword, p_new_password: newPassword }, { accessToken });
   }
 
   if (Object.keys(patch).length === 0) return null;
@@ -51,18 +40,19 @@ export async function updateOwnProfile({ profileId, currentPhone, fullName, phon
   // access_token here, this call runs as anon, matches zero rows, and
   // PostgREST returns [] rather than an error, silently no-opping the save.
   const rows = await sbPatch('profiles', profileId, patch, { accessToken, select: 'id,full_name,phone,role,unit_id,status,can_view_all' });
-  if (!rows?.length) throw new Error('Gagal menyimpan perubahan (sesi kedaluwarsa atau tidak diizinkan).');
+  if (!rows?.length) {
+    if (newPassword) return null; // password-only change already succeeded above; no profile columns to return
+    throw new Error('Gagal menyimpan perubahan (sesi kedaluwarsa atau tidak diizinkan).');
+  }
   return rows[0];
 }
 
-// db-sign-in Edge Function bridges this app's custom phone+password_hash auth to a
+// db-sign-in Edge Function bridges this app's custom phone+password auth to a
 // REAL Supabase Auth session (access_token/refresh_token), so auth.uid() resolves
 // server-side for RLS. Without this, every request used the same static public key
 // and no row-level policy tied to a specific user could ever match. See
 // wiki/Projects/BUMDES/Conventions.md "Auth is custom..." section for full context.
 export async function dbSignIn({ phone, password }) {
-  const password_hash = await hashPassword(password);
-
   const response = await fetch(`${SUPABASE_URL}/functions/v1/db-sign-in`, {
     method: 'POST',
     headers: {
@@ -70,7 +60,7 @@ export async function dbSignIn({ phone, password }) {
       apikey: SUPABASE_KEY,
       Authorization: `Bearer ${SUPABASE_KEY}`,
     },
-    body: JSON.stringify({ phone, password_hash }),
+    body: JSON.stringify({ phone, password }),
   });
 
   const body = await response.json().catch(() => ({}));

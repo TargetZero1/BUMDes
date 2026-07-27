@@ -1,7 +1,8 @@
 export const SUMBER_UMUM = ['Dana Desa (Pihak Ketiga)', 'Unit Petelur', 'Toko', 'Transfer ke Unit', 'Lain-lain'];
-export const KATEGORI_UMUM = ['ATK', 'Inventaris', 'Aset', 'Pendidikan', 'Sosial', 'Transfer ke Unit', 'Lain-lain'];
+export const KATEGORI_UMUM = ['ATK', 'Inventaris', 'Aset', 'Pendidikan', 'Sosial', 'Transfer ke Unit', 'Tak Terduga', 'Lain-lain'];
 export const SUMBER_UNIT = ['BUMDes', 'Transfer dari BUMDes', 'Penjualan', 'Pihak Ketiga', 'Lain-lain'];
-export const KATEGORI_UNIT = ['ATK', 'Aset (Peralatan, Tanah)', 'Operasional', 'Pakan', 'Obat-obatan', 'Belanja Stok', 'Lain-lain', 'Pihak Ketiga'];
+export const KATEGORI_UNIT = ['ATK', 'Aset (Peralatan, Tanah)', 'Operasional', 'Pakan', 'Obat-obatan', 'Belanja Stok', 'Tak Terduga', 'Lain-lain', 'Pihak Ketiga'];
+export const KATEGORI_TAK_TERDUGA = 'Tak Terduga';
 export const BARANG_SUGGESTIONS = ['Pakan Ayam (Konsentrat)', 'Vaksin ND', 'Obat-obatan Lain', 'Aksesoris Kandang'];
 export const SATUAN_LIST = ['Kg', 'Sak', 'Botol', 'Pcs', 'Liter', 'Unit'];
 export const GUDANG_KATEGORI_LIST = ['Sembako', 'ATK', 'Elektronik', 'Pertanian', 'Peternakan', 'Lain-lain'];

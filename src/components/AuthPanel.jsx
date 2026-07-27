@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { ArrowRight, Lock, LogIn, UserPlus } from 'lucide-react';
 import EmblemBadge from './EmblemBadge';
 import ForgotPasswordModal from './ForgotPasswordModal';
+import PasswordInput from './PasswordInput';
 
 export default function AuthPanel({ units, busy, message, mode, onModeChange, onLogin, onSignup }) {
   const [form, setForm] = useState({
@@ -100,12 +101,12 @@ export default function AuthPanel({ units, busy, message, mode, onModeChange, on
 
             <div>
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-text-muted">Password</label>
-              <input
-                type="password"
+              <PasswordInput
                 value={form.password}
                 onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))}
-                className="w-full rounded-2xl border border-border-subtle bg-surface-2 px-4 py-3 text-text outline-none ring-0 focus:border-gold-500"
+                inputClassName="w-full rounded-2xl border border-border-subtle bg-surface-2 px-4 py-3 text-text outline-none ring-0 focus:border-gold-500"
                 placeholder="Minimal 6 karakter"
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 required
               />
               {mode === 'login' && (

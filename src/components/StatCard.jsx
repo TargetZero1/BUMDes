@@ -1,19 +1,14 @@
-import { Fragment } from 'react';
 import { TrendingDown, TrendingUp } from 'lucide-react';
 import { formatRupiah } from '../lib/formatters';
 
-// Only allow line breaks at thousands-separator dots, so a long value that
-// doesn't fit drops to a new line as a whole group (e.g. "161.500." | "000")
-// instead of splitting mid-digit.
-function BreakableAmount({ text }) {
-  const parts = String(text).split('.');
-  return parts.map((part, i) => (
-    <Fragment key={i}>
-      {i > 0 && <wbr />}
-      {i > 0 ? `.${part}` : part}
-    </Fragment>
-  ));
-}
+// Rupiah amounts should never wrap or spill out of the card -- a clipped
+// ".000" or a value poking past the card edge reads as a rendering bug in a
+// financial app. A viewport-breakpoint (sm:) size can't tell a wide 4-column
+// card apart from a narrow 3-column one at the same screen width, so this
+// sizes off the card's own rendered width via container queries instead --
+// it shrinks automatically whichever grid the card happens to sit in.
+const VALUE_SIZE_BIG = 'text-sm @min-[140px]:text-base @min-[180px]:text-lg @min-[230px]:text-xl @min-[300px]:text-2xl';
+const VALUE_SIZE_COMPACT = 'text-xs @min-[140px]:text-sm @min-[200px]:text-base @min-[280px]:text-lg';
 
 export default function StatCard({ label, value, icon: Icon, tone = 'neutral', big = false, delta, subtext, plain = false }) {
   const tones = {
@@ -37,14 +32,25 @@ export default function StatCard({ label, value, icon: Icon, tone = 'neutral', b
       text: 'text-gold-700 dark:text-gold-300',
       chip: 'bg-gold-500/15 text-gold-600 dark:text-gold-400',
     },
+    warning: {
+      card: 'border-orange-200/70 bg-orange-50 dark:border-orange-900/40 dark:bg-orange-950/25',
+      text: 'text-orange-800 dark:text-orange-300',
+      chip: 'bg-orange-600/10 text-orange-700 dark:bg-orange-400/10 dark:text-orange-300',
+    },
+    glass: {
+      card: 'border-white/60 bg-white/70 shadow-lg shadow-black/5 backdrop-blur-xl dark:border-white/10 dark:bg-white/5 dark:shadow-black/30',
+      text: 'text-text',
+      chip: 'bg-orange-500/10 text-orange-600 dark:bg-orange-400/10 dark:text-orange-300',
+    },
   };
 
   const palette = tones[tone];
   const hasDelta = typeof delta === 'number' && Number.isFinite(delta);
   const deltaPositive = delta >= 0;
+  const displayText = plain ? String(value) : formatRupiah(value);
 
   return (
-    <div className={`min-w-0 rounded-2xl border p-3 shadow-sm ring-1 ring-black/5 sm:p-4 ${palette.card}`}>
+    <div className={`@container min-w-0 rounded-2xl border p-3 shadow-sm ring-1 ring-black/5 sm:p-4 ${palette.card}`}>
       <div className="mb-2 flex min-w-0 items-center justify-between gap-2">
         <span className={`min-w-0 break-words text-[0.68rem] font-semibold uppercase tracking-wide opacity-80 sm:text-xs ${palette.text}`}>{label}</span>
         {Icon && (
@@ -55,12 +61,12 @@ export default function StatCard({ label, value, icon: Icon, tone = 'neutral', b
       </div>
       <div className="flex flex-wrap items-baseline gap-2">
         <div
-          className={`min-w-0 tabular-nums font-bold ${big ? 'text-lg sm:text-2xl' : 'text-base sm:text-lg'} ${
+          className={`min-w-0 whitespace-nowrap tabular-nums font-bold ${big ? VALUE_SIZE_BIG : VALUE_SIZE_COMPACT} ${
             tone === 'highlight' ? 'text-gold-gradient' : palette.text
           }`}
           style={{ fontFamily: "'JetBrains Mono', monospace" }}
         >
-          {plain ? value : <BreakableAmount text={formatRupiah(value)} />}
+          {displayText}
         </div>
         {hasDelta && (
           <span
