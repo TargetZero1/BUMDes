@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import { describe, it, expect } from 'vitest';
-import { parseImportedWorkbook } from '../../src/lib/excel';
+import { parseImportedWorkbook } from '../../src/lib/excelImport';
 
 // QA_CHECKLIST.md § 4 Data Integrity: "Edge cases: missing columns, extra
 // columns, blank rows handled gracefully."

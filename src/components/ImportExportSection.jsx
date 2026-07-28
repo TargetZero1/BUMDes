@@ -1,6 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
 import { Download, Eye, FileSpreadsheet, Loader2, Undo2, Upload, AlertCircle, CheckCircle, Lock, History } from 'lucide-react';
-import { buildWorkbook, createEmptyWorkbook, downloadWorkbook, parseImportedWorkbook } from '../lib/excel';
 import { sbInsert, sbPatch, sbSelect } from '../lib/api';
 import { todayStr } from '../lib/formatters';
 
@@ -79,6 +78,7 @@ export default function ImportExportSection({ data, onImportReplace, computeRing
 
   const handleExport = async () => {
     if (!canExport) return;
+    const { buildWorkbook, downloadWorkbook } = await import('../lib/excelExport');
     const workbook = await buildWorkbook(data, computeRingkasan, profile, selectedUnitId, currentUnitLabel);
     await downloadWorkbook(workbook, `BMSA_Export_${todayStr()}_MSA.xlsx`);
     setMsg({ type: 'success', text: 'File berhasil di-download.' });
@@ -86,6 +86,7 @@ export default function ImportExportSection({ data, onImportReplace, computeRing
   };
 
   const handleTemplate = async () => {
+    const { createEmptyWorkbook, downloadWorkbook } = await import('../lib/excelExport');
     const workbook = await createEmptyWorkbook(computeRingkasan, profile);
     await downloadWorkbook(workbook, 'Template_BMSA_MSA.xlsx');
     setMsg({ type: 'success', text: 'Template kosong berhasil di-download.' });
@@ -99,6 +100,7 @@ export default function ImportExportSection({ data, onImportReplace, computeRing
     const reader = new FileReader();
     reader.onload = async (event) => {
       try {
+        const { parseImportedWorkbook } = await import('../lib/excelImport');
         const { next, totalRows, warnings: importWarnings } = parseImportedWorkbook(event.target.result, data);
         if (totalRows === 0) {
           setMsg({ type: 'error', text: 'Gak ada data yang kebaca. Pastikan nama sheet-nya sama kayak hasil Export.' });

@@ -12,6 +12,7 @@ import { dbSignIn, dbSignUp, refreshSession } from './lib/auth';
 import { subscribeGudangRealtime, subscribeTableRealtime } from './lib/realtime';
 import { supabase } from './lib/supabaseClient';
 import { clearSession, loadSession, saveSession } from './lib/session';
+import { installInspectDeterrent } from './lib/inspectDeterrent';
 
 const Dashboard = lazy(() => import('./components/Dashboard'));
 const ApprovalQueue = lazy(() => import('./components/ApprovalQueue'));
@@ -113,6 +114,8 @@ export default function App() {
   useEffect(() => {
     setAuthReady(true);
   }, []);
+
+  useEffect(() => installInspectDeterrent(), []);
 
   const loadUnits = useCallback(async () => {
     try {
