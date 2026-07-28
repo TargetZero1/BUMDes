@@ -27,6 +27,49 @@ async function hashText(text: string): Promise<string> {
   return Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
+// Same live-session lookup as request-password-reset -- the session_id changes
+// on every reconnect, so the stable device name has to be resolved fresh here too.
+async function resolveLiveSessionId(deviceName: string, token: string): Promise<string | null> {
+  const response = await fetch(`https://scan.flowkirim.com/api/whatsapp/sessions/${encodeURIComponent(deviceName)}`, {
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json', Authorization: `Bearer ${token}` },
+  })
+  if (!response.ok) return null
+  const body = await response.json().catch(() => null)
+  return body?.data?.session_id ?? null
+}
+
+// Best-effort security notice -- failure here must never block the password
+// change itself, which has already succeeded by the time this runs.
+async function notifyPasswordChanged(normalizedPhone: string): Promise<void> {
+  const flowkirimToken = Deno.env.get('FLOWKIRIM_API_TOKEN')
+  const flowkirimDeviceId = Deno.env.get('FLOWKIRIM_DEVICE_ID')
+  if (!flowkirimToken || !flowkirimDeviceId) return
+
+  const liveSessionId = await resolveLiveSessionId(flowkirimDeviceId, flowkirimToken)
+  if (!liveSessionId) return
+
+  const message =
+    `*BUMDes Mulyoarjo*\nPassword akun Anda baru saja berhasil diubah.\n\n` +
+    `Jika ini bukan Anda, segera hubungi admin BUMDes.`
+
+  try {
+    const response = await fetch('https://scan.flowkirim.com/api/whatsapp/messages/text', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Bearer ${flowkirimToken}`,
+      },
+      body: JSON.stringify({ session_id: liveSessionId, to: normalizedPhone.replace('+', ''), message }),
+    })
+    if (!response.ok) {
+      console.error('Password-changed notification did not send:', response.status, (await response.text()).slice(0, 500))
+    }
+  } catch (e) {
+    console.error('Password-changed notification failed:', e)
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -93,6 +136,8 @@ Deno.serve(async (req: Request) => {
     }
 
     await admin.from('password_reset_otps').update({ consumed_at: new Date().toISOString() }).eq('id', otpRow.id)
+
+    await notifyPasswordChanged(profile.normalized_phone as string)
 
     return new Response(
       JSON.stringify({ message: 'Password berhasil diubah. Silakan login dengan password baru.' }),
